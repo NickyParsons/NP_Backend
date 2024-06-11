@@ -1,0 +1,22 @@
+﻿@page "/Login"
+@model TestAspNetApplication.Pages.LoginModel
+@{
+    ViewBag.Title = "Вход";
+}
+@if (Model.Message != null)
+{
+    <p>@Model.Message</p>
+}
+<form action="/Login" method="post">
+    <p>
+        <label for="emailField">Введите E-mail: </label>
+        <input type="email" name="email" id="emailField" required />
+    </p>
+    <p>
+        <label for="passwordField">Введите пароль: </label>
+        <input type="password" name="password" id="passwordField" required />
+    </p>
+    <p>
+        <input type="submit" value="Войти" />
+    </p>
+</form>

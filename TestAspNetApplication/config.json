@@ -1,0 +1,21 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992"
+  },
+  "Logging": {
+    "LogDirectory": "D:\\TEMP\\TestSite",
+    "LogLevel": {
+      "Default": "Debug",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.WebTools.BrowserLink.Net.BrowserLinkMiddleware": "None",
+      "Microsoft.EntityFrameworkCore": "None"
+    }
+  },
+  "DirectoryToShare": "D:\\TEMP",
+  "JwtOptions": {
+    "SecretKey": "zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992",
+    "Audience": "audience",
+    "Issuer": "issuer",
+    "ExpiresHours": "12"
+  }
+}

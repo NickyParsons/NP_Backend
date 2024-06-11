@@ -1,0 +1,43 @@
+﻿@page "/persons/{handler?}/{id:int?}"
+@model TestAspNetApplication.Pages.PersonsModel
+@{
+    ViewBag.TiTle = "Razor persons API";
+}
+@if (Model.HasRequestId)
+{
+    <p>@Model.RequestedUser!.FirstName @Model.RequestedUser.LastName</p>
+    <img src="/img/@Model.RequestedUser.PhotoPath" />
+}
+else
+{
+    <table>
+        <caption>Persons list</caption>
+        <tr>
+            <td>ID</td>
+            <td>Имя</td>
+            <td>IMG</td>
+        </tr>
+        @foreach (var person in Model.People)
+        {
+            <tr>
+                <td>@person.Id</td>
+                <td><a href="/Persons/Show/@person.Id">@person.FirstName @person.LastName</a></td>
+                <td>@person.PhotoPath</td>
+                <td>
+                    <form method="post" action="/edituser">
+                        <button type="submit" name="id" value="@person.Id">Edit</button/>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="/Persons/delete">
+                        <button type="submit" name="id" value="@person.Id">Delete</button/>
+                    </form>
+                </td>
+            </tr>
+            
+        }
+    </table>
+    <form method="get" action="/EditUser">
+        <button type="submit">Add</button/>
+    </form>
+}
