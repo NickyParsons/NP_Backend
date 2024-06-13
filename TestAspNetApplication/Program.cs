@@ -1,23 +1,22 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.CookiePolicy;
-
-using System.Diagnostics;
 using System;
+using System.Diagnostics;
 using System.Text;
-
-using TestAspNetApplication.FileLogger;
 using TestAspNetApplication.Data;
 using TestAspNetApplication.Data.Entities;
-using TestAspNetApplication.Services;
 using TestAspNetApplication.Extensions;
+using TestAspNetApplication.FileLogger;
+using TestAspNetApplication.RazorComponents;
+using TestAspNetApplication.Services;
 
 namespace TestAspNetApplication
 {
@@ -32,18 +31,19 @@ namespace TestAspNetApplication
             {
                 options.Cookie.Name = "NickyParsonsSite";
             });
-
-            builder.Services.AddJwtAuthentication(builder.Configuration);
-            builder.Services.AddAuthorization();
-            builder.Services.AddDistributedMemoryCache();
-            builder.Services.AddDbContext<PosgresDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-            builder.Services.AddRazorPages();
-            builder.Services.AddScoped<IPersonRepository, PersonRepository>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
-            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-            builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
-            builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<IJwtProvider, JwtProvider>();
+            var services = builder.Services;
+            services.AddJwtAuthentication(builder.Configuration);
+            services.AddAuthorization();
+            services.AddDistributedMemoryCache();
+            services.AddDbContext<PosgresDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            services.AddRazorPages();
+            services.AddScoped<IPersonRepository, PersonRepository>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
+            services.AddScoped<IPasswordHasher, PasswordHasher>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IJwtProvider, JwtProvider>();
+            services.AddRazorComponents().AddInteractiveServerComponents();
             var app = builder.Build();
             app.UseAuthentication();
             app.UseAuthorization();
@@ -61,6 +61,8 @@ namespace TestAspNetApplication
                 Secure = CookieSecurePolicy.Always
             });
             app.MapRazorPages();
+            app.UseAntiforgery();
+            app.MapRazorComponents<BlazorApp>().AddInteractiveServerRenderMode();
             app.MapGet("/api/persons", GetAllUsersHandler);
             app.MapGet("/api/persons/{id:int}", GetUserHandler);
             app.MapDelete("/api/persons/{id:int}", DeleteUserHandler);

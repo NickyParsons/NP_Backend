@@ -1,0 +1,45 @@
+﻿@rendermode RenderMode.InteractiveServer
+
+<div>
+    <p><b>Razor Test Component</b></p>
+    <button @onclick="DecrementCount">-</button>
+    <button>@CurrentCount</button>
+    <button @onclick="IncrementCount">+</button>
+</div>
+
+
+@code {
+    [Parameter]
+    public int CurrentCount { get; set; } = 0;
+
+    private void IncrementCount(MouseEventArgs e)
+    {
+        if (e.CtrlKey)
+        {
+            CurrentCount = CurrentCount + 10;
+        }
+        else
+        {
+            CurrentCount++;
+        }
+    }
+
+    private void DecrementCount(MouseEventArgs e)
+    {
+        if (e.CtrlKey)
+        {
+            if (CurrentCount > 10)
+            {
+                CurrentCount = CurrentCount - 10;
+            }
+            else
+            {
+                CurrentCount = 0;
+            }
+        }
+        else
+        {
+            if (CurrentCount > 0) CurrentCount--;
+        }
+    }
+}
