@@ -72,7 +72,7 @@ namespace TestAspNetApplication
             app.Map("/db", DbTest);
             app.Map("/logout", (HttpContext context) => { 
                 context.Response.Cookies.Delete("nasty-boy");
-                return Results.Redirect("/login");
+                return Results.Redirect("/");
             });
             app.Run();
         }

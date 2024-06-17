@@ -1,0 +1,35 @@
+﻿@rendermode RenderMode.InteractiveServer
+
+@if (authState!.User.Identity!.IsAuthenticated)
+{
+    <text>
+        @authState!.User.Identity.Name | @authState!.User.FindFirst(System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType)?.Value | <a href="/Logout" @onclick="Logout">Logout</a>
+    </text>
+}
+else
+{
+    <text>
+        <a href="/Register">Register</a> | <a href="/Login">Login</a>
+    </text>
+}
+
+
+@code {
+    [Inject]
+    public required AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+    private AuthenticationState? authState;
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        base.OnParametersSet();
+    }
+
+    public void Logout()
+    {
+        Navigation.NavigateTo("/logout");
+        // context.Response.Cookies.Delete("nasty-boy");
+    }
+}

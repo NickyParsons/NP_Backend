@@ -1,6 +1,15 @@
-﻿@rendermode RenderMode.InteractiveServer
+﻿@page "/test1"
+@rendermode RenderMode.InteractiveServer
 
 <div>
+    @if (AuthenticationStateProvider!.GetAuthenticationStateAsync().Result.User.Identity!.IsAuthenticated)
+    {
+        <p>@AuthenticationStateProvider.GetAuthenticationStateAsync().Result.User.Identity!.Name</p>
+    }
+    else
+    {
+        <p>FALSE</p>
+    }
     <p><b>Razor Test Component</b></p>
     <button @onclick="DecrementCount">-</button>
     <button>@CurrentCount</button>
@@ -9,6 +18,8 @@
 
 
 @code {
+    [Inject]
+    public AuthenticationStateProvider? AuthenticationStateProvider { get; set; }
     [Parameter]
     public int CurrentCount { get; set; } = 0;
 
@@ -41,5 +52,18 @@
         {
             if (CurrentCount > 0) CurrentCount--;
         }
+    }
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (AuthenticationStateProvider != null)
+        {
+            var authState = AuthenticationStateProvider.GetAuthenticationStateAsync().Result;
+        }
+        base.OnParametersSet();
     }
 }

@@ -1,80 +1,19 @@
-﻿@page "/blazorapp"
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="/css/styles_blazor.css" />
     <meta charset="utf-8">
     <meta name="author" content="NickyParsons" />
     <title>NickyParsons Site | @title</title>
+    <base href="/" />
     <script src="_framework/blazor.web.js"></script>
 </head>
 <body>
-    <header>
-        <h2>HEADER</h2>
-        <div id="header">
-            <div class="menu" id="logon">
-                @* @if (Model.Request.HttpContext.User.Identity.IsAuthenticated)
-                {
-                    <a href="/Logout">Logout</a>
-                }
-                else
-                {
-                    <text>
-                        <a href="/Register">Register</a> |
-                        <a href="/Login">Login</a> |
-                    </text>
-                } *@
-                <a href="/Register">Register</a> |
-                <a href="/Login">Login</a>
-            </div>
-            <div class="menu">
-                @* @foreach (var reference in refList)
-                {
-                    @if (reference.Key != "Home")
-                    {
-                        <text> | </text>
-
-                        <a href="@reference.Value">@reference.Key</a>
-                    }
-                    else
-                    {
-                        <a href="@reference.Value">@reference.Key</a>
-                    }
-                } *@
-                <a href="/">Home</a> | <a href="/blazorapp">APP</a>
-            </div>
-            <h3>@title</h3>
-        </div>
-    </header>
-    <main role="main">
-        <h2>MAIN</h2>
-        <div id="pageContent">
-            @* <div>
-                <b>Authentication info:</b>
-                @if (Model.Request.HttpContext.User.Identity.IsAuthenticated)
-                {
-                    <p>User: @Model.Request.HttpContext.User.Identity.Name</p>
-                    <p>Role: @Model.Request.HttpContext.User.FindFirst(System.Security.Claims.ClaimsIdentity.DefaultRoleClaimType)</p>
-                    <p>AuthenticationType: @Model.Request.HttpContext.User.Identity.AuthenticationType</p>
-                }
-            </div> *@
-            <Test CurrentCount="5"></Test>
-        </div>
-    </main>
-    <footer>
-        <h2>FOOTER</h2>
-        <div id="footer">
-            <p>
-                <address>
-                    Telegram: <a href="https://t.me/NickyParsons">@@NickyParsons</a>.
-                </address>
-            </p>
-            <p>
-                Copyright © @DateTime.Now.Year
-            </p>
-        </div>
-    </footer>
+    <Router AppAssembly="@typeof(Program).Assembly">
+        <Found Context="routeData">
+            <RouteView RouteData="routeData" DefaultLayout="@typeof(TestAspNetApplication.RazorComponents.Layouts.MainLayout)"></RouteView>
+        </Found>
+    </Router>
 </body>
 </html>
 

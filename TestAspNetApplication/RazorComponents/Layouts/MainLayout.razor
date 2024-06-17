@@ -1,0 +1,40 @@
+﻿@inherits LayoutComponentBase
+
+<header>
+    <h2>HEADER</h2>
+    <div id="header">
+        <div class="menu" id="logon">
+            <LogonComponent></LogonComponent>
+        </div>
+        <div class="menu">
+            <NavLink href="/">Home</NavLink> | 
+            <NavLink href="/Persons/Show">Persons</NavLink> |
+            <NavLink href="/test1">test1</NavLink> |
+            <NavLink href="/test2">test2</NavLink>
+        </div>
+        <h3>@title</h3>
+    </div>
+</header>
+<main role="main">
+    <h2>MAIN</h2>
+    <div id="pageContent">
+        @Body
+    </div>
+</main>
+<footer>
+    <h2>FOOTER</h2>
+    <div id="footer">
+        <p>
+            <address>
+                Telegram: <a href="https://t.me/NickyParsons">@@NickyParsons</a>.
+            </address>
+        </p>
+        <p>
+            Copyright © @DateTime.Now.Year
+        </p>
+    </div>
+</footer>
+
+@code {
+    string title = "Blazor App";
+}
