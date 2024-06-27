@@ -21,7 +21,7 @@ namespace TestAspNetApplication.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TestAspNetApplication.Models.Person", b =>
+            modelBuilder.Entity("TestAspNetApplication.Data.Entities.Person", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,13 +43,16 @@ namespace TestAspNetApplication.Migrations
                     b.ToTable("Persons");
                 });
 
-            modelBuilder.Entity("TestAspNetApplication.Models.Role", b =>
+            modelBuilder.Entity("TestAspNetApplication.Data.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -60,7 +63,7 @@ namespace TestAspNetApplication.Migrations
                     b.ToTable("Roles");
                 });
 
-            modelBuilder.Entity("TestAspNetApplication.Models.User", b =>
+            modelBuilder.Entity("TestAspNetApplication.Data.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -92,9 +95,9 @@ namespace TestAspNetApplication.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TestAspNetApplication.Models.User", b =>
+            modelBuilder.Entity("TestAspNetApplication.Data.Entities.User", b =>
                 {
-                    b.HasOne("TestAspNetApplication.Models.Role", "Role")
+                    b.HasOne("TestAspNetApplication.Data.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -103,7 +106,7 @@ namespace TestAspNetApplication.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("TestAspNetApplication.Models.Role", b =>
+            modelBuilder.Entity("TestAspNetApplication.Data.Entities.Role", b =>
                 {
                     b.Navigation("Users");
                 });

@@ -6,7 +6,6 @@ namespace TestAspNetApplication.Data
 {
     public class RoleRepository : IRoleRepository
     {
-        private bool _disposed = false;
         private PosgresDbContext _dbContext;
         private ILogger<RoleRepository> _logger;
         public RoleRepository(ILogger<RoleRepository> logger, PosgresDbContext dbContext)
@@ -14,23 +13,6 @@ namespace TestAspNetApplication.Data
             _logger = logger;
             _dbContext = dbContext;
         }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-            if (disposing)
-            {
-                // Освобождаем управляемые ресурсы
-            }
-            // Освобождаем неуправляемые ресурсы
-            _dbContext.Dispose();
-            _disposed = true;
-        }
-
         public async Task<IEnumerable<Role>> GetAllRoles()
         {
             return await _dbContext.Roles.ToListAsync();
@@ -58,20 +40,20 @@ namespace TestAspNetApplication.Data
 
         public async Task<Role> CreateRole(string newRoleName)
         {
-            Role? dbRole = await _dbContext.Roles.FirstOrDefaultAsync(x => x.Name.ToLower() == newRoleName.ToLower());
-            if (dbRole == null)
-            {
-                Role newRole = new Role();
-                newRole.Name = newRoleName;
-                await _dbContext.Roles.AddAsync(newRole);
-                await _dbContext.SaveChangesAsync();
-                return newRole;
-            }
-            else
-            {
-                _logger.LogWarning($"Role with name \'{newRoleName}\' already exist");
-                return dbRole!;
-            }
+            Role newRole = new Role();
+            newRole.Name = newRoleName;
+            newRole.Description = "Undefined";
+            _dbContext.Roles.Add(newRole);
+            await _dbContext.SaveChangesAsync();
+            _logger.LogDebug($"User \'{newRole.Name}\' created");
+            return newRole;
+        }
+        public async Task<Role> CreateRole(Role newRole)
+        {
+            await _dbContext.Roles.AddAsync(newRole);
+            await _dbContext.SaveChangesAsync();
+            _logger.LogDebug($"User \'{newRole.Name}\' created");
+            return newRole;
         }
         public async Task<Role?> EditRole(Role editedRole)
         {
@@ -100,10 +82,6 @@ namespace TestAspNetApplication.Data
                 _logger.LogWarning($"Role with id \'{id}\' not found");
             }
             return dbRole;
-        }
-        ~RoleRepository()
-        {
-            Dispose(false);
         }
     }
 }

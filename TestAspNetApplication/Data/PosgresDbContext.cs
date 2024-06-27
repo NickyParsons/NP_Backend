@@ -16,7 +16,6 @@ namespace TestAspNetApplication.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            //optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=usersdb;Username=postgres;Password=zona1992");
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

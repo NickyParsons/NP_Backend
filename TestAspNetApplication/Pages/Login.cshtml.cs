@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 
+using TestAspNetApplication.DTO;
+
 using TestAspNetApplication.Services;
 
 namespace TestAspNetApplication.Pages
@@ -20,12 +22,12 @@ namespace TestAspNetApplication.Pages
             _logger = logger;
             _userService = userService;
         }
-        public async Task<IActionResult> OnPost(string email, string password, string? returnUrl)
-        {
-            //_logger.LogDebug($"RETURN URL: {returnUrl ?? "NULL"}");
-            var token = await _userService.Login(email, password);
-            PageContext.HttpContext.Response.Cookies.Append("nasty-boy", token);
-            return RedirectToPage("Index");
-        }
+        //public async Task<IActionResult> OnPost(string email, string password, string? returnUrl)
+        //{
+        //    //_logger.LogDebug($"RETURN URL: {returnUrl ?? "NULL"}");
+        //    var token = await _userService.Login(email, password);
+        //    PageContext.HttpContext.Response.Cookies.Append("nasty-boy", token);
+        //    return RedirectToPage("Index");
+        //}
     }
 }

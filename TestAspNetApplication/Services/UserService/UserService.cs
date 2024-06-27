@@ -4,6 +4,7 @@ using System.Security.Claims;
 
 using TestAspNetApplication.Data.Entities;
 using TestAspNetApplication.Data;
+using TestAspNetApplication.DTO;
 
 namespace TestAspNetApplication.Services
 {
@@ -14,7 +15,7 @@ namespace TestAspNetApplication.Services
         private readonly IJwtProvider _jwtProvider;
         private readonly IRoleRepository _roleRepo;
         private readonly ILogger<UserService> _logger;
-        public UserService(IPasswordHasher passwordHasher, IUserRepository userRepository, IJwtProvider jwtProvider, IRoleRepository roleRepository, ILogger<UserService> logger) 
+        public UserService(IPasswordHasher passwordHasher, IJwtProvider jwtProvider, IUserRepository userRepository, IRoleRepository roleRepository, ILogger<UserService> logger) 
         { 
             _hasher = passwordHasher;
             _userRepo = userRepository;
@@ -22,39 +23,35 @@ namespace TestAspNetApplication.Services
             _roleRepo = roleRepository;
             _logger = logger;
         }
-        public async Task<string> Login(string username, string password)
+        public async Task<string> Login(LoginUserRequest form)
         {
             string token = string.Empty;
-            var user = await _userRepo.GetUserByEmail(username);
+            var user = await _userRepo.GetUserByEmail(form.Email);
             if (user != null)
             {
-                if (_hasher.Verify(user.HashedPassword, password))
+                if (_hasher.Verify(user.HashedPassword, form.Password))
                 {
                     token = _jwtProvider.GenerateToken(user);
                 }
             }
             return token;
         }
-        public async Task Register(string email, string password, string? firstname, string? lastname)
+        public async Task Register(RegisterUserRequest form)
         {
             User user = new User();
-            user.Email = email;
-            user.HashedPassword = _hasher.GenerateHash(password);
-            user.FirstName = firstname;
-            user.LastName = lastname;
+            user.Email = form.Email;
+            user.HashedPassword = _hasher.GenerateHash(form.Password);
+            user.FirstName = form.Firstname;
+            user.LastName = form.Lastname;
             Role? userRole = await _roleRepo.GetRoleByName("user");
             if (userRole == null)
             {
-                _logger.LogDebug("Пытаюсь создать роль Юзера");
-                user.Role = await _roleRepo.CreateRole("user");
-                _logger.LogDebug("Роль создана");
+                user.Role = await _roleRepo.CreateRole(new Role { Name = "User", Description = "Пользователь" });
             }
             else
             {
-                _logger.LogDebug("Роль найдена");
                 user.Role = userRole!;
             }
-            _logger.LogDebug($"Пытаюсь создать Юзера c ID: {user.Id} и RoleID {user.Role.Id}");
             await _userRepo.CreateUser(user);
         }
     }

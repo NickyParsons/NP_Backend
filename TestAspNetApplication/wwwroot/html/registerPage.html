@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../css/Styles.css" />
+    <meta charset="utf-8">
+    <meta name="author" content="NickyParsons" />
+    <title>NickyParsons Site | Register Page</title>
+</head>
+<body>
+    <header>
+        <h2>HEADER</h2>
+        <div id="header">
+            <div class="menu" id="logon">
+                <script src="../scripts/logon.js"></script>
+            </div>
+            <div class="menu" id="navMenu">
+                <script src="../scripts/menu.js"></script>
+            </div>
+            <h3 id="page-title">Register Page</h3>
+        </div>
+    </header>
+    <main role="main">
+        <h2>MAIN</h2>
+        <div id="pageContent">
+            <form action="/register" method="post" id="registerForm">
+                <p><label>E-Mail:<input type="email" name="email" required /></label></p>
+                <p><label>Имя:<input type="text" name="firstname" maxlength="20"/></label></p>
+                <p><label>Фамилия:<input type="text" name="lastname" maxlength="20"/></label></p>
+                <p><label>Пароль:<input type="password" id="password" name="password" required /></label></p>
+                <p><label>Повторите пароль:<input type="password" id="repeatPassword" required /></label></p>
+                <p><input type="submit" value="Регистрация" id="sendButton" /></p>
+            </form>
+            <script src="../scripts/register.js"></script>
+        </div>
+    </main>
+    <footer>
+        <h2>FOOTER</h2>
+        <div id="footer">
+            <p>
+                <address>
+                    Telegram: <a href="https://t.me/NickyParsons">@NickyParsons</a>.
+                </address>
+            </p>
+            <p>
+
+                Copyright ©
+                <script>document.write(`${new Date().getFullYear()}`);</script>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

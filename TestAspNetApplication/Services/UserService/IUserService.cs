@@ -1,8 +1,10 @@
-﻿namespace TestAspNetApplication.Services
+﻿using TestAspNetApplication.DTO;
+
+namespace TestAspNetApplication.Services
 {
     public interface IUserService
     {
-        public Task Register(string email, string password, string? firstname, string? lastname);
-        public Task<string> Login(string username, string password);
+        public Task Register(RegisterUserRequest form);
+        public Task<string> Login(LoginUserRequest form);
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 using TestAspNetApplication.Services;
 using TestAspNetApplication.Data.Entities;
+using TestAspNetApplication.DTO;
 
 namespace TestAspNetApplication.Pages
 {
@@ -18,17 +19,17 @@ namespace TestAspNetApplication.Pages
             _logger = logger;
             _userService = userService;
         }
-        public async Task<IActionResult> OnPost(string email, string password, string passwordRepeat, string? firstname, string? lastname)
-        {
-            if (password != passwordRepeat)
-            {
-                Message = "Пароли не совпадают";
-            }
-            else
-            {
-                await _userService.Register(email, password, firstname, lastname);
-            }
-            return Page();
-        }
+        //public async Task<IActionResult> OnPost(string email, string password, string passwordRepeat, string? firstname, string? lastname)
+        //{
+        //    if (password != passwordRepeat)
+        //    {
+        //        Message = "Пароли не совпадают";
+        //    }
+        //    else
+        //    {
+        //        await _userService.Register(email, password, firstname, lastname);
+        //    }
+        //    return Page();
+        //}
     }
 }

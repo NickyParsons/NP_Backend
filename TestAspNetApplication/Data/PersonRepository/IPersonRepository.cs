@@ -2,7 +2,7 @@
 
 namespace TestAspNetApplication.Data
 {
-    public interface IPersonRepository : IDisposable
+    public interface IPersonRepository
     {
         public Task<Person> CreateAsync(Person entity);
         public Task<Person?> DeleteAsync(int id);

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../css/Styles.css" />
+    <meta charset="utf-8">
+    <meta name="author" content="NickyParsons" />
+    <title>NickyParsons Site | Login Page</title>
+</head>
+<body>
+    <header>
+        <h2>HEADER</h2>
+        <div id="header">
+            <div class="menu" id="logon">
+                <script src="../scripts/logon.js"></script>
+            </div>
+            <div class="menu" id="navMenu">
+                <script src="../scripts/menu.js"></script>
+            </div>
+            <h3 id="page-title">Login Page</h3>
+        </div>
+    </header>
+    <main role="main">
+        <h2>MAIN</h2>
+        <div id="pageContent">
+            <form action="/login" method="post" id="loginForm">
+                <p><label>E-Mail:<input type="email" name="email" required /></label></p>
+                <p><label>Пароль:<input type="password" id="password" name="password" required /></label></p>
+                <p><input type="submit" value="Войти" id="sendButton" /></p>
+            </form>
+        </div>
+    </main>
+    <footer>
+        <h2>FOOTER</h2>
+        <div id="footer">
+            <p>
+                <address>
+                    Telegram: <a href="https://t.me/NickyParsons">@NickyParsons</a>.
+                </address>
+            </p>
+            <p>
+
+                Copyright ©
+                <script>document.write(`${new Date().getFullYear()}`);</script>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -15,7 +15,6 @@ using TestAspNetApplication.Data;
 using TestAspNetApplication.Data.Entities;
 using TestAspNetApplication.Extensions;
 using TestAspNetApplication.FileLogger;
-using TestAspNetApplication.RazorComponents;
 using TestAspNetApplication.Services;
 
 namespace TestAspNetApplication
@@ -27,32 +26,24 @@ namespace TestAspNetApplication
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("config.json");
             builder.Logging.AddProvider(new FileLoggerProvider(builder.Configuration.GetSection("Logging:LogDirectory").Value!));
-            builder.Services.AddSession(options =>
-            {
-                options.Cookie.Name = "NickyParsonsSite";
-            });
             var services = builder.Services;
+            services.AddControllers();
+            services.AddSession();
             services.AddJwtAuthentication(builder.Configuration);
             services.AddAuthorization();
             services.AddDistributedMemoryCache();
             services.AddDbContext<PosgresDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-            services.AddRazorPages();
             services.AddScoped<IPersonRepository, PersonRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtProvider, JwtProvider>();
-            services.AddRazorComponents().AddInteractiveServerComponents();
             var app = builder.Build();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles();
             app.UseDeveloperExceptionPage();
-            app.UseDirectoryBrowser(new DirectoryBrowserOptions
-            {
-                FileProvider = new PhysicalFileProvider(app.Configuration["DirectoryToShare"]!), RequestPath = new PathString("/share")
-            });
             app.UseSession();
             app.UseCookiePolicy(new CookiePolicyOptions
             {
@@ -60,21 +51,26 @@ namespace TestAspNetApplication
                 HttpOnly = HttpOnlyPolicy.Always,
                 Secure = CookieSecurePolicy.Always
             });
-            app.MapRazorPages();
-            app.UseAntiforgery();
-            app.MapRazorComponents<BlazorApp>().AddInteractiveServerRenderMode();
-            app.MapGet("/api/persons", GetAllUsersHandler);
-            app.MapGet("/api/persons/{id:int}", GetUserHandler);
-            app.MapDelete("/api/persons/{id:int}", DeleteUserHandler);
-            app.MapPost("/api/persons", CreateUserHandler);
-            app.MapPut("/api/persons", EditUserHandler);
-            app.Map("/test/{id?}", TestHandler);
-            app.Map("/db", DbTest);
-            app.Map("/logout", (HttpContext context) => { 
-                context.Response.Cookies.Delete("nasty-boy");
-                return Results.Redirect("/");
-            });
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+            //app.MapGet("/api/persons", GetAllUsersHandler);
+            //app.MapGet("/api/persons/{id:int}", GetUserHandler);
+            //app.MapDelete("/api/persons/{id:int}", DeleteUserHandler);
+            //app.MapPost("/api/persons", CreateUserHandler);
+            //app.MapPut("/api/persons", EditUserHandler);
+            //app.Map("/test/{id?}", TestHandler);
+            //app.Map("/db", DbTest);
+            //app.Map("/logout", (HttpContext context) => { 
+            //    context.Response.Cookies.Delete("nasty-boy");
+            //    return Results.Redirect("/");
+            //});
             app.Run();
+        }
+        static async Task IndexHandler(HttpContext context)
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+            await context.Response.SendFileAsync("wwwroot/html/index.html");
         }
         static async Task GetAllUsersHandler(HttpContext context, IPersonRepository repo, ILogger<Program> logger)
         {
@@ -138,7 +134,6 @@ namespace TestAspNetApplication
                 logger.LogWarning($"Input user is empty");
             }
         }
-
         static async Task TestHandler(HttpContext context, string? id, IConfiguration configuration, ILogger<Program> logger)
         {
             logger.LogInformation(new EventId(666) ,"Test method start");

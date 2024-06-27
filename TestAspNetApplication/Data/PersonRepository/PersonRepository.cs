@@ -8,7 +8,6 @@ namespace TestAspNetApplication.Data
 {
     public class PersonRepository : IPersonRepository
     {
-        private bool _disposed = false;
         private PosgresDbContext _dbContext;
         private ILogger<PersonRepository> _logger;
         public PersonRepository(PosgresDbContext dbContext, ILogger<PersonRepository> logger)
@@ -67,26 +66,6 @@ namespace TestAspNetApplication.Data
                 _logger.LogWarning($"User with ID {entity.Id} not found");
             }
             return user;
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-            if (disposing)
-            {
-                // Освобождаем управляемые ресурсы
-            }
-            // Освобождаем неуправляемые ресурсы
-            _dbContext.Dispose();
-            _disposed = true;
-        }
-        ~PersonRepository()
-        {
-            Dispose(false);
         }
     }
 }

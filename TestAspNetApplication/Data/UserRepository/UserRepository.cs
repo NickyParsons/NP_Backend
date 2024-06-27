@@ -5,7 +5,6 @@ namespace TestAspNetApplication.Data
 {
     public class UserRepository : IUserRepository
     {
-        private bool _disposed = false;
         private PosgresDbContext _dbContext;
         private ILogger<UserRepository> _logger;
         public UserRepository(ILogger<UserRepository> logger, PosgresDbContext dbContext)
@@ -17,6 +16,7 @@ namespace TestAspNetApplication.Data
         {
             await _dbContext.Users.AddAsync(newUser);
             await _dbContext.SaveChangesAsync();
+            _logger.LogDebug($"User \'{newUser.Email}\' created");
             return newUser;
         }
         public async Task<User?> DeleteUser(int id)
@@ -72,26 +72,6 @@ namespace TestAspNetApplication.Data
                 _logger.LogWarning($"User with id \'{id}\' not found");
             }
             return dbUser;
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-            if (disposing)
-            {
-                // Освобождаем управляемые ресурсы
-            }
-            // Освобождаем неуправляемые ресурсы
-            _dbContext.Dispose();
-            _disposed = true;
-        }
-        ~UserRepository()
-        {
-            Dispose(false);
         }
     }
 }
