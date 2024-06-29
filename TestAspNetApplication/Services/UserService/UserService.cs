@@ -23,18 +23,17 @@ namespace TestAspNetApplication.Services
             _roleRepo = roleRepository;
             _logger = logger;
         }
-        public async Task<string> Login(LoginUserRequest form)
+        public async Task<string?> Login(LoginUserRequest form)
         {
-            string token = string.Empty;
             var user = await _userRepo.GetUserByEmail(form.Email);
             if (user != null)
             {
                 if (_hasher.Verify(user.HashedPassword, form.Password))
                 {
-                    token = _jwtProvider.GenerateToken(user);
+                    return _jwtProvider.GenerateToken(user);
                 }
             }
-            return token;
+            return null;
         }
         public async Task Register(RegisterUserRequest form)
         {

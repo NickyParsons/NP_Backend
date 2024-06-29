@@ -41,8 +41,15 @@ namespace TestAspNetApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> LoginUser(LoginUserRequest form)
         {
-            string token = await _userService.Login(form);
-            Response.Cookies.Append("nasty-boy", token);
+            string? token = await _userService.Login(form);
+            if (token != null)
+            {
+                Response.Cookies.Append("nasty-boy", token);
+            }
+            else 
+            {
+                //нет никакого сообщения пользователю если логин\пасс не подходят. Надо исправить.
+            }
             return Redirect("/");
         }
         [Route("/logout")]

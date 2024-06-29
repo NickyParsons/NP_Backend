@@ -47,9 +47,9 @@ namespace TestAspNetApplication
             app.UseSession();
             app.UseCookiePolicy(new CookiePolicyOptions
             {
-                MinimumSameSitePolicy = SameSiteMode.Strict,
-                HttpOnly = HttpOnlyPolicy.Always,
-                Secure = CookieSecurePolicy.Always
+                //MinimumSameSitePolicy = SameSiteMode.Strict,
+                //HttpOnly = HttpOnlyPolicy.Always,
+                //Secure = CookieSecurePolicy.Always
             });
             app.MapControllerRoute(
                 name: "default",
