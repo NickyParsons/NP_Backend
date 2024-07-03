@@ -16,12 +16,19 @@ namespace TestAspNetApplication.Controllers
         }
         [Route("/")]
         [HttpGet]
+        public async Task ShowLayout()
+        {
+            Response.ContentType = "text/html; charset=utf-8";
+            Response.StatusCode = 200;
+            await Response.SendFileAsync("wwwroot/html/_layout.html");
+        }
+        [Route("/home")]
+        [HttpGet]
         public async Task ShowHomePage()
         {
-            Request.Headers["Cache-Control"] = "no-cache";
-            Response.Headers["Cache-Control"] = "no-cache";
             Response.ContentType = "text/html; charset=utf-8";
-            await Response.SendFileAsync("wwwroot/html/indexPage.html");
+            Response.StatusCode = 200;
+            await Response.SendFileAsync("wwwroot/html/components/home.html");
         }
         [Authorize(Roles = "Admin")]
         [Route("/counter")]
@@ -29,7 +36,24 @@ namespace TestAspNetApplication.Controllers
         public async Task ShowCounterPage()
         {
             Response.ContentType = "text/html; charset=utf-8";
-            await Response.SendFileAsync("wwwroot/html/counterPage.html");
+            await Response.SendFileAsync("wwwroot/html/Components/Counter.html");
+        }
+        [HttpGet]
+        [Route("/test1")]
+        public async Task GetTestHtml1()
+        {
+            _logger.LogDebug($"Test 1 requested");
+            Response.ContentType = "text/javascript; charset=utf-8";
+            Response.StatusCode = 200;
+            await Response.SendFileAsync("wwwroot/html/Components/Test1.html");
+        }
+        [HttpGet]
+        [Route("/test2")]
+        public async Task GetTestHtml2()
+        {
+            _logger.LogDebug($"Test 2 requested");
+            Response.ContentType = "text/html; charset=utf-8";
+            await Response.SendFileAsync("wwwroot/html/Components/Test2.html");
         }
     }
 }
