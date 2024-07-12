@@ -55,5 +55,13 @@ namespace TestAspNetApplication.Controllers
             Response.ContentType = "text/html; charset=utf-8";
             await Response.SendFileAsync("wwwroot/html/Components/Test2.html");
         }
+        [HttpGet]
+        [Route("/test3")]
+        [Authorize]
+        public IActionResult GetTestJson()
+        {
+            var returnJson = new { name = "ass" };
+            return Json( returnJson );
+        }
     }
 }

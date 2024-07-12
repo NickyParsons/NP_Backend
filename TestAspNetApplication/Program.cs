@@ -26,7 +26,18 @@ namespace TestAspNetApplication
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("config.json");
             builder.Logging.AddProvider(new FileLoggerProvider(builder.Configuration.GetSection("Logging:LogDirectory").Value!));
+            builder.WebHost.UseUrls("http://192.168.1.2:5214");
             var services = builder.Services;
+            //services.AddCors(option =>
+            //{
+            //    option.AddDefaultPolicy(option =>
+            //    {
+            //        option.WithOrigins("http://localhost:8081");
+            //        option.AllowAnyMethod();
+            //        option.AllowAnyHeader();
+            //    });
+            //});
+            services.AddCors();
             services.AddControllers();
             services.AddSession();
             services.AddJwtAuthentication(builder.Configuration);
@@ -40,6 +51,14 @@ namespace TestAspNetApplication
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtProvider, JwtProvider>();
             var app = builder.Build();
+            app.UseCors(builder =>
+            {
+                builder
+                .WithOrigins("http://localhost:8081")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials();
+            });
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseStaticFiles();

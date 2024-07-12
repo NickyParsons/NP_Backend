@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using TestAspNetApplication.DTO;
 using TestAspNetApplication.Services;
 
@@ -28,7 +29,7 @@ namespace TestAspNetApplication.Controllers
         {
             _logger.LogDebug($"Регистрация нового пользователя {form.Email} {form.Firstname} {form.Lastname}");
             await _userService.Register(form);
-            return Redirect("/");
+            return Ok();
         }
         [Route("/login")]
         [HttpGet]
@@ -44,13 +45,16 @@ namespace TestAspNetApplication.Controllers
             string? token = await _userService.Login(form);
             if (token != null)
             {
-                Response.Cookies.Append("nasty-boy", token);
+                _logger.LogDebug($"Successfull login: /'{form.Email}/'");
+                //Response.Cookies.Append("nasty-boy", token);
+                var returnJson = new { email = form.Email, token = token };
+                return Json( returnJson );
             }
-            else 
+            else
             {
-                //нет никакого сообщения пользователю если логин\пасс не подходят. Надо исправить.
+                _logger.LogWarning($"Email or password incorrect");
+                return Unauthorized();
             }
-            return Redirect("/");
         }
         [Route("/logout")]
         [HttpGet]
