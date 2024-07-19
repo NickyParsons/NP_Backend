@@ -15,28 +15,12 @@ namespace TestAspNetApplication.Controllers
             _userService = userService;
         }
         [Route("/register")]
-        [HttpGet]
-        public async Task ShowRegisterPage()
-        {
-            Request.Headers["Cache-Control"] = "no-cache";
-            Response.Headers["Cache-Control"] = "no-cache";
-            Response.ContentType = "text/html; charset=utf-8";
-            await Response.SendFileAsync("wwwroot/html/registerPage.html");
-        }
-        [Route("/register")]
         [HttpPost]
         public async Task<IActionResult> RegisterNewUser(RegisterUserRequest form)
         {
             _logger.LogDebug($"Регистрация нового пользователя {form.Email} {form.Firstname} {form.Lastname}");
             await _userService.Register(form);
             return Ok();
-        }
-        [Route("/login")]
-        [HttpGet]
-        public async Task ShowLoginPage()
-        {
-            Response.ContentType = "text/html; charset=utf-8";
-            await Response.SendFileAsync("wwwroot/html/loginPage.html");
         }
         [Route("/login")]
         [HttpPost]

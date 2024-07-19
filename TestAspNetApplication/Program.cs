@@ -26,7 +26,7 @@ namespace TestAspNetApplication
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("config.json");
             builder.Logging.AddProvider(new FileLoggerProvider(builder.Configuration.GetSection("Logging:LogDirectory").Value!));
-            builder.WebHost.UseUrls("http://192.168.1.2:5214");
+            //builder.WebHost.UseUrls("http://192.168.1.2:5214");
             var services = builder.Services;
             //services.AddCors(option =>
             //{
@@ -50,6 +50,7 @@ namespace TestAspNetApplication
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IJwtProvider, JwtProvider>();
+            services.AddScoped<ArticleRepository>();
             var app = builder.Build();
             app.UseCors(builder =>
             {

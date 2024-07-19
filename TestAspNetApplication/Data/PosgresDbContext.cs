@@ -9,6 +9,7 @@ namespace TestAspNetApplication.Data
         public DbSet<Person> Persons { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Article> Articles { get; set; }
         public PosgresDbContext(DbContextOptions<PosgresDbContext> options) : base(options)
         {
             //Database.EnsureDeleted();
@@ -22,6 +23,7 @@ namespace TestAspNetApplication.Data
             modelBuilder.ApplyConfiguration(new UserConfiguration());
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new PersonConfiguration());
+            modelBuilder.ApplyConfiguration(new ArticleConfiguration());
             base.OnModelCreating(modelBuilder);
         }
     }
