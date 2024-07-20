@@ -31,7 +31,7 @@ namespace TestAspNetApplication.Controllers
             {
                 _logger.LogDebug($"Successfull login: /'{form.Email}/'");
                 //Response.Cookies.Append("nasty-boy", token);
-                var returnJson = new { email = form.Email, token = token };
+                var returnJson = new { token = token };
                 return Json( returnJson );
             }
             else

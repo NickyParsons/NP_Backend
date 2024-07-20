@@ -12,7 +12,7 @@ namespace TestAspNetApplication.Data
             _logger = logger;
             _dbContext = dbContext;
         }
-        public async Task<Article> CreateUser(Article newArticle)
+        public async Task<Article> CreateArticle(Article newArticle)
         {
             await _dbContext.Articles.AddAsync(newArticle);
             await _dbContext.SaveChangesAsync();
@@ -32,7 +32,7 @@ namespace TestAspNetApplication.Data
             }
             return dbArticle;
         }
-        public async Task<Article?> EditUser(Article editedArticle)
+        public async Task<Article?> EditArticle(Article editedArticle)
         {
             Article? dbArticle = await _dbContext.Articles.FirstOrDefaultAsync(x => x.Id == editedArticle.Id);
             if (dbArticle != null)
@@ -40,7 +40,7 @@ namespace TestAspNetApplication.Data
                 dbArticle.Name = editedArticle.Name;
                 dbArticle.Description = editedArticle.Description;
                 dbArticle.Text = editedArticle.Text;
-                dbArticle.Image = editedArticle.Image;
+                dbArticle.ImageUrl = editedArticle.ImageUrl;
                 dbArticle.UpdatedAt = editedArticle.UpdatedAt;
                 await _dbContext.SaveChangesAsync();
             }

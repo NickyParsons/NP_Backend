@@ -12,8 +12,8 @@ using TestAspNetApplication.Data;
 namespace TestAspNetApplication.Migrations
 {
     [DbContext(typeof(PosgresDbContext))]
-    [Migration("20240716130224_AddArticles")]
-    partial class AddArticles
+    [Migration("20240720114658_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,8 +31,8 @@ namespace TestAspNetApplication.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -40,7 +40,7 @@ namespace TestAspNetApplication.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("Image")
+                    b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -56,7 +56,7 @@ namespace TestAspNetApplication.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Article");
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("TestAspNetApplication.Data.Entities.Person", b =>
@@ -83,11 +83,9 @@ namespace TestAspNetApplication.Migrations
 
             modelBuilder.Entity("TestAspNetApplication.Data.Entities.Role", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
@@ -103,11 +101,9 @@ namespace TestAspNetApplication.Migrations
 
             modelBuilder.Entity("TestAspNetApplication.Data.Entities.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -120,11 +116,14 @@ namespace TestAspNetApplication.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
                     b.Property<string>("LastName")
                         .HasColumnType("text");
 
-                    b.Property<int>("RoleId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 

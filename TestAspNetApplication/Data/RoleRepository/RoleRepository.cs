@@ -18,7 +18,7 @@ namespace TestAspNetApplication.Data
             return await _dbContext.Roles.ToListAsync();
         }
 
-        public async Task<Role?> GetRoleById(int id)
+        public async Task<Role?> GetRoleById(Guid id)
         {
             Role? dbRole = await _dbContext.Roles.FirstOrDefaultAsync(x => x.Id == id);
             if (dbRole == null)
@@ -69,7 +69,7 @@ namespace TestAspNetApplication.Data
             }
             return dbRole;
         }
-        public async Task<Role?> DeleteRole(int id)
+        public async Task<Role?> DeleteRole(Guid id)
         {
             Role? dbRole = await _dbContext.Roles.FirstOrDefaultAsync(x => x.Id == id);
             if (dbRole != null)

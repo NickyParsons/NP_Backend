@@ -19,7 +19,7 @@ namespace TestAspNetApplication.Data
             _logger.LogDebug($"User \'{newUser.Email}\' created");
             return newUser;
         }
-        public async Task<User?> DeleteUser(int id)
+        public async Task<User?> DeleteUser(Guid id)
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == id);
             if(dbUser != null)
@@ -64,7 +64,7 @@ namespace TestAspNetApplication.Data
             }
             return dbUser;
         }
-        public async Task<User?> GetUserById(int id)
+        public async Task<User?> GetUserById(Guid id)
         {
             User? dbUser = await _dbContext.Users.Include(u => u.Role).FirstOrDefaultAsync(x => x.Id == id);
             if(dbUser == null)

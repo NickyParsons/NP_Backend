@@ -6,10 +6,10 @@
         public string? Name { get; set; }
         public string? Description { get; set; }
         public string? Text { get; set; }
-        public string? Image {  get; set; }
+        public string? ImageUrl {  get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
-        public int AuthorId { get; set; }
+        public Guid AuthorId { get; set; }
         public User? Author { get; set; }
     }
 }

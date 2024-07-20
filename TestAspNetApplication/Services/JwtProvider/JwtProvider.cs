@@ -17,6 +17,7 @@ namespace TestAspNetApplication.Services
         public string GenerateToken(User user)
         {
             var claims = new List<Claim>();
+            claims.Add(new Claim("id", user.Id.ToString()));
             claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email));
             claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role!.Name));
             var signingCredentials = new SigningCredentials(
