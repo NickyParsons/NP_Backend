@@ -25,21 +25,14 @@ namespace TestAspNetApplication.Controllers
             _logger.LogDebug($"New request at CreateNewArticle()");
             form.Id = Guid.NewGuid();
             var imageFile = Request.Form.Files.First();
-            string uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\content\\articles\\{form.Id}");
-            //string uploadDirectory = Path.Combine(Directory.GetCurrentDirectory(), $"wwwroot\\content\\articles\\{Guid.NewGuid()}");
-            if (!Directory.Exists(uploadDirectory))
-            {
-                Directory.CreateDirectory(uploadDirectory);
-            }
-            string uploadPath = Path.Combine(uploadDirectory, imageFile.FileName);
-            using (FileStream fileStream = new FileStream(uploadPath, FileMode.Create, FileAccess.Write))
-            {
-                await imageFile.CopyToAsync(fileStream);
-            }
-            form.ImageUrl = uploadPath;
-            //_logger.LogDebug($"Image Url in Controller: {form.ImageUrl}");
-            await _articleService.CreateArticle(form);
+            await _articleService.CreateArticle(form, imageFile);
             return Ok();
+        }
+        [HttpGet]
+        [Route("/articles")]
+        public async Task<IActionResult> GetArticles()
+        {
+            return Json(await _articleService.GetAllArticles());
         }
     }
 }

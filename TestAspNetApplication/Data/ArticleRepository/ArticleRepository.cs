@@ -53,11 +53,11 @@ namespace TestAspNetApplication.Data
 
         public async Task<IEnumerable<Article>> GetAllArticles()
         {
-            return await _dbContext.Articles.Include(a => a.Author).AsNoTracking().ToListAsync();
+            return await _dbContext.Articles.AsNoTracking().ToListAsync();
         }
         public async Task<Article?> GetArticleById(Guid id)
         {
-            Article? dbArticle = await _dbContext.Articles.Include(a => a.Author).AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            Article? dbArticle = await _dbContext.Articles.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if(dbArticle == null)
             {
                 _logger.LogWarning($"Article with id \'{id}\' not found");
