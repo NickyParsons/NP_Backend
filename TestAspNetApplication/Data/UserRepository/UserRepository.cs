@@ -66,7 +66,7 @@ namespace TestAspNetApplication.Data
         }
         public async Task<User?> GetUserById(Guid id)
         {
-            User? dbUser = await _dbContext.Users.Include(u => u.Role).FirstOrDefaultAsync(x => x.Id == id);
+            User? dbUser = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             if(dbUser == null)
             {
                 _logger.LogWarning($"User with id \'{id}\' not found");

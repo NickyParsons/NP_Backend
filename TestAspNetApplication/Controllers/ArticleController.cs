@@ -24,8 +24,20 @@ namespace TestAspNetApplication.Controllers
         {
             _logger.LogDebug($"New request at CreateNewArticle()");
             form.Id = Guid.NewGuid();
-            var imageFile = Request.Form.Files.First();
-            await _articleService.CreateArticle(form, imageFile);
+            var userId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
+            if (form.AuthorId != userId) 
+            {
+                return BadRequest("Something wrong with AuthorID");
+            }
+            if (Request.Form.Files.Count == 0)
+            {
+                await _articleService.CreateArticle(form);
+            }
+            else
+            {
+                var imageFile = Request.Form.Files.First();
+                await _articleService.CreateArticle(form, imageFile);
+            }
             return Ok();
         }
         [HttpGet]

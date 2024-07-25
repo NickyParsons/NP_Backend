@@ -8,14 +8,14 @@ using TestAspNetApplication.DTO;
 
 namespace TestAspNetApplication.Services
 {
-    public class UserService : IUserService
+    public class AuthService
     {
         private readonly IPasswordHasher _hasher;
         private readonly IUserRepository _userRepo;
         private readonly IJwtProvider _jwtProvider;
         private readonly IRoleRepository _roleRepo;
-        private readonly ILogger<UserService> _logger;
-        public UserService(IPasswordHasher passwordHasher, IJwtProvider jwtProvider, IUserRepository userRepository, IRoleRepository roleRepository, ILogger<UserService> logger) 
+        private readonly ILogger<AuthService> _logger;
+        public AuthService(IPasswordHasher passwordHasher, IJwtProvider jwtProvider, IUserRepository userRepository, IRoleRepository roleRepository, ILogger<AuthService> logger) 
         { 
             _hasher = passwordHasher;
             _userRepo = userRepository;

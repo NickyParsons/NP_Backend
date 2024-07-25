@@ -48,7 +48,7 @@ namespace TestAspNetApplication
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<AuthService>();
             services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddScoped<ArticleRepository>();
             services.AddScoped<ArticleService>();
