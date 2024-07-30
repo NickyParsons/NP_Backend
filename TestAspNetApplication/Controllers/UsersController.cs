@@ -1,60 +1,29 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TestAspNetApplication.Data;
 using TestAspNetApplication.DTO;
 using TestAspNetApplication.Services;
+using TestAspNetApplication.Data.Entities;
 
 namespace TestAspNetApplication.Controllers
 {
     public class UsersController : Controller
     {
         private ILogger<UsersController> _logger { get; set; }
-        private AuthService _authService;
+        private UserService _userService;
         private IUserRepository _userRepository;
-        public UsersController(ILogger<UsersController> logger, AuthService authService, IUserRepository userRepository)
+        public UsersController(ILogger<UsersController> logger, UserService userService, IUserRepository userRepository)
         {
             _logger = logger;
-            _authService = authService;
+            _userService = userService;
             _userRepository = userRepository;
-        }
-        [Route("/register")]
-        [HttpPost]
-        public async Task<IActionResult> RegisterNewUser(RegisterUserRequest form)
-        {
-            _logger.LogDebug($"Регистрация нового пользователя {form.Email} {form.Firstname} {form.Lastname}");
-            await _authService.Register(form);
-            return Ok();
-        }
-        [Route("/login")]
-        [HttpPost]
-        public async Task<IActionResult> LoginUser(LoginUserRequest form)
-        {
-            string? token = await _authService.Login(form);
-            if (token != null)
-            {
-                _logger.LogDebug($"Successfull login: /'{form.Email}/'");
-                //Response.Cookies.Append("nasty-boy", token);
-                var returnJson = new { token = token };
-                return Json( returnJson );
-            }
-            else
-            {
-                _logger.LogWarning($"Email or password incorrect");
-                return Unauthorized();
-            }
-        }
-        [Route("/logout")]
-        [HttpGet]
-        public IActionResult LogoutUser()
-        {
-            Response.Cookies.Delete("nasty-boy");
-            return Redirect("/");
         }
         [Route("/users/{id:guid}")]
         [HttpGet]
         public async Task<IActionResult> GetUserData(Guid id)
         {
-            var user = await _userRepository.GetUserById(id);
+            var user = await _userRepository.GetUserById(id, false);
             if (user != null)
             {
                 return Json(user!);
@@ -63,6 +32,30 @@ namespace TestAspNetApplication.Controllers
             {
                 return NotFound();
             }
+        }
+        [Authorize]
+        [Route("/users/{id:guid}/edit")]
+        [HttpPost]
+        public async Task<IActionResult> EditCurrentUser(EditUserRequest form)
+        {
+            _logger.LogInformation($"Edit user method");
+            var userId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
+            if (userId != form.Id)
+            {
+                return Unauthorized();
+            }
+            User user;
+            if (Request.Form.Files.Count != 0)
+            {
+                user = await _userService.EditUser(form, Request.Form.Files.First());
+            }
+            else
+            {
+                user = await _userService.EditUser(form, null);
+            }
+            user.Articles.Clear();
+            user.Role = null;
+            return Json(user);
         }
     }
 }

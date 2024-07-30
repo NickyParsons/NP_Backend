@@ -52,6 +52,8 @@ namespace TestAspNetApplication
             services.AddScoped<IJwtProvider, JwtProvider>();
             services.AddScoped<ArticleRepository>();
             services.AddScoped<ArticleService>();
+            services.AddScoped<FileService>();
+            services.AddScoped<UserService>();
             var app = builder.Build();
             app.UseCors(builder =>
             {

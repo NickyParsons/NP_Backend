@@ -11,13 +11,15 @@ namespace TestAspNetApplication.Services
     public class ArticleService
     {
         private readonly ArticleRepository _articleRepository;
+        private readonly FileService _fileService;
         private readonly ILogger<ArticleService> _logger;
-        public ArticleService(ArticleRepository articleRepository, ILogger<ArticleService> logger) 
+        public ArticleService(ArticleRepository articleRepository, FileService fileService, ILogger<ArticleService> logger) 
         {
             _articleRepository = articleRepository;
+            _fileService = fileService;
             _logger = logger;
         }
-        public async Task CreateArticle(CreateArticleRequest form)
+        public async Task CreateArticle(CreateArticleRequest form, IFormFile? file)
         {
             Article article = new Article();
             article.Id = form.Id!.Value;
@@ -28,33 +30,10 @@ namespace TestAspNetApplication.Services
             var now = DateTimeOffset.UtcNow;
             article.CreatedAt = now;
             article.UpdatedAt = now;
-            _logger.LogDebug($"Trying add article: \'{article.Name}\'");
-            await _articleRepository.CreateArticle(article);
-            _logger.LogInformation($"Article: \'{article.Name}\' created");
-        }
-        public async Task CreateArticle(CreateArticleRequest form, IFormFile file)
-        {
-            Article article = new Article();
-            article.Id = form.Id!.Value;
-            article.Name = form.Name;
-            article.Description = form.Description;
-            article.Text = form.Text;
-            var now = DateTimeOffset.UtcNow;
-            article.CreatedAt = now;
-            article.UpdatedAt = now;
-            string relativeDir = $"content/articles/{form.Id}";
-            string uploadDirectory = Path.Combine($"{Directory.GetCurrentDirectory()}\\wwwroot", relativeDir);
-            if (!Directory.Exists(uploadDirectory))
+            if (file != null)
             {
-                Directory.CreateDirectory(uploadDirectory);
+                article.ImageUrl = await _fileService.UploadFormFile(file, "articles", (Guid)form.Id);
             }
-            string relativePath = $"{relativeDir}/{file.FileName}";
-            string uploadPath = Path.Combine(uploadDirectory, file.FileName);
-            using (FileStream fileStream = new FileStream(uploadPath, FileMode.Create, FileAccess.Write))
-            {
-                await file.CopyToAsync(fileStream);
-            }
-            article.ImageUrl = relativePath;
             _logger.LogDebug($"Trying add article: \'{article.Name}\'");
             await _articleRepository.CreateArticle(article);
             _logger.LogInformation($"Article: \'{article.Name}\' created");

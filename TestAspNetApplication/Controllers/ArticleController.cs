@@ -22,7 +22,6 @@ namespace TestAspNetApplication.Controllers
         [Route("/articles/new")]
         public async Task<IActionResult> CreateNewArticle(CreateArticleRequest form)
         {
-            _logger.LogDebug($"New request at CreateNewArticle()");
             form.Id = Guid.NewGuid();
             var userId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
             if (form.AuthorId != userId) 
@@ -31,12 +30,11 @@ namespace TestAspNetApplication.Controllers
             }
             if (Request.Form.Files.Count == 0)
             {
-                await _articleService.CreateArticle(form);
+                await _articleService.CreateArticle(form, null);
             }
             else
             {
-                var imageFile = Request.Form.Files.First();
-                await _articleService.CreateArticle(form, imageFile);
+                await _articleService.CreateArticle(form, Request.Form.Files.First());
             }
             return Ok();
         }

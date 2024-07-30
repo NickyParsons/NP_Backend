@@ -42,6 +42,7 @@ namespace TestAspNetApplication.Data
                 dbUser.LastName = editedUser.LastName;
                 dbUser.Email = editedUser.Email;
                 dbUser.HashedPassword = editedUser.HashedPassword;
+                dbUser.ImageUrl = editedUser.ImageUrl;
                 await _dbContext.SaveChangesAsync();
             }
             else
@@ -64,9 +65,17 @@ namespace TestAspNetApplication.Data
             }
             return dbUser;
         }
-        public async Task<User?> GetUserById(Guid id)
+        public async Task<User?> GetUserById(Guid id, bool isIncluded)
         {
-            User? dbUser = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            User? dbUser;
+            if (isIncluded)
+            {
+                dbUser = await _dbContext.Users.Include(u => u.Role).Include(u => u.Articles).FirstOrDefaultAsync(x => x.Id == id);
+            }
+            else 
+            {
+                dbUser = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            }
             if(dbUser == null)
             {
                 _logger.LogWarning($"User with id \'{id}\' not found");
