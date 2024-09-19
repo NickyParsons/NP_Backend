@@ -25,7 +25,7 @@ namespace TestAspNetApplication
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Configuration.AddJsonFile("config.json");
-            builder.Logging.AddProvider(new FileLoggerProvider(builder.Configuration.GetSection("Logging:LogDirectory").Value!));
+            //builder.Logging.AddProvider(new FileLoggerProvider(builder.Configuration.GetSection("Logging:LogDirectory").Value!));
             //builder.WebHost.UseUrls("http://192.168.1.2:5214");
             var services = builder.Services;
             //services.AddCors(option =>
@@ -58,7 +58,7 @@ namespace TestAspNetApplication
             app.UseCors(builder =>
             {
                 builder
-                .WithOrigins("http://localhost:8081")
+                .WithOrigins("http://localhost:8081", "http://46.8.224.185")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();

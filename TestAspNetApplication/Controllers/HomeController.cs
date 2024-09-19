@@ -15,11 +15,20 @@ namespace TestAspNetApplication.Controllers
             _logger = logger;
         }
         [HttpGet]
-        [Route("/test3")]
-        [Authorize]
+        [Route("/test2")]
         public IActionResult GetTestJson()
         {
-            var returnJson = new { name = "ass" };
+            _logger.LogInformation("New requyest in test 2");
+            var returnJson = new { name = "test 2" };
+            return Json(returnJson);
+        }
+        [HttpGet]
+        [Route("/test3")]
+        [Authorize]
+        public IActionResult GetTestAuthorizeJson()
+        {
+            _logger.LogInformation("New requyest in test 3");
+            var returnJson = new { name = "test 3" };
             return Json( returnJson );
         }
     }
