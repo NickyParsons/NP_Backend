@@ -88,6 +88,7 @@ namespace TestAspNetApplication
             //    context.Response.Cookies.Delete("nasty-boy");
             //    return Results.Redirect("/");
             //});
+            app.ApplyMigration();
             app.Run();
         }
         static async Task IndexHandler(HttpContext context)
