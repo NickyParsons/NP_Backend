@@ -94,6 +94,14 @@ namespace TestAspNetApplication.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("24fbe5ee-8bab-4ae8-958d-5ecef55c94a7"),
+                            Description = "Пользователь",
+                            Name = "User"
+                        });
                 });
 
             modelBuilder.Entity("TestAspNetApplication.Data.Entities.User", b =>

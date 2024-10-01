@@ -1,4 +1,5 @@
 {
+  "urls": "http://0.0.0.0:5666",
   "ConnectionStrings": {
     "DefaultConnection": "Host=localhost;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992"
   },

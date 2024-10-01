@@ -12,6 +12,11 @@ namespace TestAspNetApplication.Data.EntityTypeConfigurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.HasMany(r => r.Users).WithOne(u => u.Role);
+            Role defaultRole = new Role();
+            defaultRole.Name = "User";
+            defaultRole.Description = "Пользователь";
+            defaultRole.Id = Guid.NewGuid();
+            builder.HasData(defaultRole);
         }
     }
 }

@@ -87,6 +87,11 @@ namespace TestAspNetApplication.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "Description", "Name" },
+                values: new object[] { new Guid("24fbe5ee-8bab-4ae8-958d-5ecef55c94a7"), "Пользователь", "User" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Articles_AuthorId",
                 table: "Articles",

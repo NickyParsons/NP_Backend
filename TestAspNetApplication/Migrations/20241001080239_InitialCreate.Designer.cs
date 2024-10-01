@@ -12,7 +12,7 @@ using TestAspNetApplication.Data;
 namespace TestAspNetApplication.Migrations
 {
     [DbContext(typeof(PosgresDbContext))]
-    [Migration("20240720114658_InitialCreate")]
+    [Migration("20241001080239_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -97,6 +97,14 @@ namespace TestAspNetApplication.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("24fbe5ee-8bab-4ae8-958d-5ecef55c94a7"),
+                            Description = "Пользователь",
+                            Name = "User"
+                        });
                 });
 
             modelBuilder.Entity("TestAspNetApplication.Data.Entities.User", b =>
