@@ -17,7 +17,7 @@ namespace TestAspNetApplication.Controllers
             _roleRepository = roleRepository;
         }
         [HttpGet]
-        [Route("/test")]
+        [Route("/")]
         public async Task<IActionResult> GetRoles()
         {
             _logger.LogInformation("New request in test. Trying to get all roles");

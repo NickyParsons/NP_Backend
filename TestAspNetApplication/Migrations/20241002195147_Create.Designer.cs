@@ -12,8 +12,8 @@ using TestAspNetApplication.Data;
 namespace TestAspNetApplication.Migrations
 {
     [DbContext(typeof(PosgresDbContext))]
-    [Migration("20241001080239_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20241002195147_Create")]
+    partial class Create
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,7 +101,13 @@ namespace TestAspNetApplication.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("24fbe5ee-8bab-4ae8-958d-5ecef55c94a7"),
+                            Id = new Guid("3a906f52-eecf-420f-9435-dd61112afd8b"),
+                            Description = "Администратор",
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("05720ca0-8e48-46f6-81ed-4edd360acc9b"),
                             Description = "Пользователь",
                             Name = "User"
                         });
