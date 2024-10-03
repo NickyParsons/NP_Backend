@@ -12,7 +12,7 @@ services:
       context: .
       dockerfile: TestAspNetApplication/Dockerfile
     ports:
-     - "31001:5666"
+     - "31666:31666"
     networks:
      - dev-network
     depends_on:

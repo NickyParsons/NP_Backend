@@ -98,13 +98,13 @@ namespace TestAspNetApplication.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("3a906f52-eecf-420f-9435-dd61112afd8b"),
+                            Id = new Guid("656068f8-6268-47f3-8851-c2c5dd03f044"),
                             Description = "Администратор",
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("05720ca0-8e48-46f6-81ed-4edd360acc9b"),
+                            Id = new Guid("6b069dc7-66ea-46f7-924b-46c0a1cc6a17"),
                             Description = "Пользователь",
                             Name = "User"
                         });
@@ -141,6 +141,15 @@ namespace TestAspNetApplication.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ed1c98f1-dcdb-4665-b21f-ea9090bcd535"),
+                            Email = "admin@admin",
+                            HashedPassword = "ClS/8E1JPP39gGPmRyBl+w==;9eoVht2Ofj0+SGFPWBL/WivJKHjT1ffYFPD4dj90WJE=",
+                            RoleId = new Guid("656068f8-6268-47f3-8851-c2c5dd03f044")
+                        });
                 });
 
             modelBuilder.Entity("TestAspNetApplication.Data.Entities.Article", b =>

@@ -94,9 +94,14 @@ namespace TestAspNetApplication.Migrations
                 columns: new[] { "Id", "Description", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("05720ca0-8e48-46f6-81ed-4edd360acc9b"), "Пользователь", "User" },
-                    { new Guid("3a906f52-eecf-420f-9435-dd61112afd8b"), "Администратор", "Admin" }
+                    { new Guid("656068f8-6268-47f3-8851-c2c5dd03f044"), "Администратор", "Admin" },
+                    { new Guid("6b069dc7-66ea-46f7-924b-46c0a1cc6a17"), "Пользователь", "User" }
                 });
+
+            migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Email", "FirstName", "HashedPassword", "ImageUrl", "LastName", "RoleId" },
+                values: new object[] { new Guid("ed1c98f1-dcdb-4665-b21f-ea9090bcd535"), "admin@admin", null, "ClS/8E1JPP39gGPmRyBl+w==;9eoVht2Ofj0+SGFPWBL/WivJKHjT1ffYFPD4dj90WJE=", null, null, new Guid("656068f8-6268-47f3-8851-c2c5dd03f044") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Articles_AuthorId",

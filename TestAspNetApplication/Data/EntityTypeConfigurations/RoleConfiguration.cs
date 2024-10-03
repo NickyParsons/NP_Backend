@@ -12,8 +12,6 @@ namespace TestAspNetApplication.Data.EntityTypeConfigurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.HasMany(r => r.Users).WithOne(u => u.Role);
-            builder.HasData(new Role { Id = Guid.NewGuid(), Name = "Admin", Description = "Администратор" });
-            builder.HasData(new Role { Id = Guid.NewGuid(), Name = "User", Description = "Пользователь" });
         }
     }
 }

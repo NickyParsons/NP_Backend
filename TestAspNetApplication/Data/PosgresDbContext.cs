@@ -24,6 +24,11 @@ namespace TestAspNetApplication.Data
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new PersonConfiguration());
             modelBuilder.ApplyConfiguration(new ArticleConfiguration());
+            var adminRole = new Role { Id = Guid.NewGuid(), Name = "Admin", Description = "Администратор" };
+            var userRole = new Role { Id = Guid.NewGuid(), Name = "User", Description = "Пользователь" };
+            modelBuilder.Entity<Role>().HasData(adminRole);
+            modelBuilder.Entity<Role>().HasData(userRole);
+            modelBuilder.Entity<User>().HasData(new User { Id = Guid.NewGuid(), Email = "admin@admin", HashedPassword = "ClS/8E1JPP39gGPmRyBl+w==;9eoVht2Ofj0+SGFPWBL/WivJKHjT1ffYFPD4dj90WJE=", RoleId = adminRole.Id});
             base.OnModelCreating(modelBuilder);
         }
     }

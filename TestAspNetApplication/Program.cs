@@ -58,7 +58,7 @@ namespace TestAspNetApplication
             app.UseCors(builder =>
             {
                 builder
-                .WithOrigins("http://localhost:8081", "http://46.8.224.185")
+                .WithOrigins("http://localhost:80", "http://localhost:8081", "http://46.8.224.185")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
