@@ -18,7 +18,7 @@ namespace TestAspNetApplication.Services
         public async Task<string> UploadFormFile(IFormFile file, string directoryName, Guid contentId)
         {
             string relativeDir = $"content/{directoryName}/{contentId}";
-            string uploadDirectory = Path.Combine($"{Directory.GetCurrentDirectory()}\\wwwroot", relativeDir);
+            string uploadDirectory = Path.Combine($"{Directory.GetCurrentDirectory()}/wwwroot", relativeDir);
             if (!Directory.Exists(uploadDirectory))
             {
                 Directory.CreateDirectory(uploadDirectory);
