@@ -10,7 +10,7 @@ namespace TestAspNetApplication.Data.EntityTypeConfigurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).ValueGeneratedOnAdd();
+            //builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId);
             builder.HasMany(u => u.Articles).WithOne(a => a.Author);
         }

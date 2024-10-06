@@ -14,6 +14,10 @@ namespace TestAspNetApplication.Data.Entities
         public string? LastName { get; set; }
         public string? ImageUrl { get; set; }
         public List<Article> Articles { get; set; } = new List<Article>();
+        public string? VerificationToken { get; set; }
+        public DateTimeOffset? VerifiedAt { get; set; }
+        public string? PasswordResetToken { get; set; }
+        public DateTimeOffset? ResetTokenExpires { get; set; }
         public override string ToString()
         {
             return $"[{Id}] {FirstName} {LastName} {Email}";

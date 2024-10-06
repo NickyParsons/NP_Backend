@@ -3,7 +3,7 @@ using TestAspNetApplication.Data.Entities;
 
 namespace TestAspNetApplication.Data
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository
     {
         private PosgresDbContext _dbContext;
         private ILogger<UserRepository> _logger;
@@ -80,6 +80,11 @@ namespace TestAspNetApplication.Data
             {
                 _logger.LogWarning($"User with id \'{id}\' not found");
             }
+            return dbUser;
+        }
+        public async Task<User?> GetUserByVerifyEmailToken(string token)
+        {
+            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
             return dbUser;
         }
     }

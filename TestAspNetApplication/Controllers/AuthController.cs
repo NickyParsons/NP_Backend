@@ -19,26 +19,32 @@ namespace TestAspNetApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterNewUser(RegisterUserRequest form)
         {
-            _logger.LogDebug($"Регистрация нового пользователя {form.Email} {form.Firstname} {form.Lastname}");
-            await _authService.Register(form);
-            return Ok();
+            try
+            {
+                await _authService.Register(form);
+                _logger.LogInformation($"Successfull reistration {form.Email}");
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogDebug(e.Message);
+                return BadRequest(e.Message);
+            }
         }
         [Route("/login")]
         [HttpPost]
         public async Task<IActionResult> LoginUser(LoginUserRequest form)
         {
-            string? token = await _authService.Login(form);
-            if (token != null)
+            try
             {
-                _logger.LogDebug($"Successfull login: /'{form.Email}/'");
-                //Response.Cookies.Append("nasty-boy", token);
-                var returnJson = new { token = token };
-                return Json( returnJson );
+                string token = await _authService.Login(form);
+                _logger.LogInformation($"Successfull login {form.Email}");
+                return Json(new { token = token });
             }
-            else
+            catch (Exception e)
             {
-                _logger.LogWarning($"Email or password incorrect");
-                return Unauthorized();
+                _logger.LogDebug($"{e.Message}");
+                return BadRequest("Email or password incorrect");
             }
         }
         [Route("/logout")]
@@ -47,6 +53,48 @@ namespace TestAspNetApplication.Controllers
         {
             Response.Cookies.Delete("nasty-boy");
             return Redirect("/");
+        }
+        [Route("/verify-email")]
+        [HttpPost]
+        public async Task<IActionResult> VerifyEmail(string token)
+        {
+            try
+            {
+                await _authService.VerifyEmail(token);
+                return Ok("Email successfully verified");
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"{e.Message}");
+            }
+        }
+        [Route("/forgot-password")]
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(string email)
+        {
+            try
+            {
+                await _authService.ForgotPassword(email);
+                return Ok("Password could be reset now");
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"{e.Message}");
+            }
+        }
+        [Route("/reset-password")]
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest form)
+        {
+            try
+            {
+                await _authService.ResetPassword(form);
+                return Ok("Password successfully changed");
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"{e.Message}");
+            }
         }
     }
 }

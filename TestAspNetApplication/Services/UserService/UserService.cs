@@ -10,10 +10,10 @@ namespace TestAspNetApplication.Services
 {
     public class UserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly UserRepository _userRepository;
         private readonly FileService _fileService;
         private readonly ILogger<UserService> _logger;
-        public UserService(FileService fileService, ILogger<UserService> logger, IUserRepository userRepository) 
+        public UserService(FileService fileService, ILogger<UserService> logger, UserRepository userRepository) 
         {
             _fileService = fileService;
             _userRepository = userRepository;

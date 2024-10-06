@@ -39,7 +39,7 @@ namespace TestAspNetApplication
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1"}));
             services.AddDbContext<PosgresDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
             services.AddScoped<IPersonRepository, PersonRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IPasswordHasher, PasswordHasher>();
             services.AddScoped<AuthService>();
@@ -48,6 +48,7 @@ namespace TestAspNetApplication
             services.AddScoped<ArticleService>();
             services.AddScoped<FileService>();
             services.AddScoped<UserService>();
+            services.AddTransient<TokenGenerator>();
             var app = builder.Build();
             app.UseCors(builder =>
             {

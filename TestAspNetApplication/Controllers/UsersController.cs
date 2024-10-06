@@ -12,8 +12,8 @@ namespace TestAspNetApplication.Controllers
     {
         private ILogger<UsersController> _logger { get; set; }
         private UserService _userService;
-        private IUserRepository _userRepository;
-        public UsersController(ILogger<UsersController> logger, UserService userService, IUserRepository userRepository)
+        private UserRepository _userRepository;
+        public UsersController(ILogger<UsersController> logger, UserService userService, UserRepository userRepository)
         {
             _logger = logger;
             _userService = userService;

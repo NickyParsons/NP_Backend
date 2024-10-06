@@ -5,38 +5,42 @@ using System.Security.Claims;
 using TestAspNetApplication.Data.Entities;
 using TestAspNetApplication.Data;
 using TestAspNetApplication.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestAspNetApplication.Services
 {
     public class AuthService
     {
+        private readonly PosgresDbContext _dbContext;
         private readonly IPasswordHasher _hasher;
-        private readonly IUserRepository _userRepo;
+        private readonly UserRepository _userRepo;
         private readonly IJwtProvider _jwtProvider;
         private readonly IRoleRepository _roleRepo;
         private readonly ILogger<AuthService> _logger;
-        public AuthService(IPasswordHasher passwordHasher, IJwtProvider jwtProvider, IUserRepository userRepository, IRoleRepository roleRepository, ILogger<AuthService> logger) 
+        private readonly TokenGenerator _tokenGenerator;
+        public AuthService(PosgresDbContext dbContext, IPasswordHasher passwordHasher, IJwtProvider jwtProvider, UserRepository userRepository, IRoleRepository roleRepository, ILogger<AuthService> logger, TokenGenerator tokenGenerator) 
         { 
+            _dbContext = dbContext;
             _hasher = passwordHasher;
             _userRepo = userRepository;
             _jwtProvider = jwtProvider;
             _roleRepo = roleRepository;
             _logger = logger;
+            _tokenGenerator = tokenGenerator;
         }
-        public async Task<string?> Login(LoginUserRequest form)
+        public async Task<string> Login(LoginUserRequest form)
         {
             var user = await _userRepo.GetUserByEmail(form.Email);
-            if (user != null)
-            {
-                if (_hasher.Verify(user.HashedPassword, form.Password))
-                {
-                    return _jwtProvider.GenerateToken(user);
-                }
-            }
-            return null;
+            if (user == null) throw new Exception($"User {form.Email} not found");
+            if (!_hasher.Verify(user.HashedPassword, form.Password)) throw new Exception($"Password for {form.Email} incorrect");
+            return _jwtProvider.GenerateToken(user);
         }
         public async Task Register(RegisterUserRequest form)
         {
+            var dbUser = await _userRepo.GetUserByEmail(form.Email);
+            if (dbUser != null) {
+                throw new Exception("User with this email already exist");
+            }
             User user = new User();
             user.Email = form.Email;
             user.HashedPassword = _hasher.GenerateHash(form.Password);
@@ -51,7 +55,52 @@ namespace TestAspNetApplication.Services
             {
                 user.Role = userRole!;
             }
+            string token;
+            User? dbUserByToken;
+            do
+            {
+                token = _tokenGenerator.GenerateToken();
+                dbUserByToken = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
+            }
+            while (dbUserByToken != null);
+            user.VerificationToken = token;
             await _userRepo.CreateUser(user);
+        }
+        public async Task VerifyEmail(string token)
+        {
+            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
+            if (dbUser != null)
+            {
+                dbUser.VerifiedAt = DateTime.UtcNow;
+                _dbContext.SaveChanges();
+            }
+            else
+            {
+                throw new Exception("Token not found");
+            }
+        }
+        public async Task ForgotPassword(string email)
+        {
+            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
+            if (dbUser == null) throw new Exception("User with this email not found");
+            string token;
+            User? dbUserByToken;
+            do
+            {
+                token = _tokenGenerator.GenerateToken();
+                dbUserByToken = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.PasswordResetToken == token);
+            } while (dbUserByToken != null);
+            dbUser.PasswordResetToken = token;
+            dbUser.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
+            _dbContext.SaveChanges();
+        }
+        public async Task ResetPassword(ResetPasswordRequest form)
+        {
+            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.PasswordResetToken == form.Token);
+            if (dbUser == null) throw new Exception("Token not found");
+            if(DateTime.UtcNow > dbUser.ResetTokenExpires) throw new Exception("Token expired");
+            dbUser.HashedPassword = _hasher.GenerateHash(form.Password);
+            _dbContext.SaveChanges();
         }
     }
 }
