@@ -49,6 +49,7 @@ namespace TestAspNetApplication
             services.AddScoped<FileService>();
             services.AddScoped<UserService>();
             services.AddTransient<TokenGenerator>();
+            services.AddTransient<IEmailSender, SimpleEmailSender>();
             var app = builder.Build();
             app.UseCors(builder =>
             {

@@ -18,7 +18,16 @@ namespace TestAspNetApplication.Services
         private readonly IRoleRepository _roleRepo;
         private readonly ILogger<AuthService> _logger;
         private readonly TokenGenerator _tokenGenerator;
-        public AuthService(PosgresDbContext dbContext, IPasswordHasher passwordHasher, IJwtProvider jwtProvider, UserRepository userRepository, IRoleRepository roleRepository, ILogger<AuthService> logger, TokenGenerator tokenGenerator) 
+        private readonly IEmailSender _emailSender;
+        public AuthService(
+            PosgresDbContext dbContext, 
+            IPasswordHasher passwordHasher, 
+            IJwtProvider jwtProvider, 
+            UserRepository userRepository, 
+            IRoleRepository roleRepository, 
+            ILogger<AuthService> logger, 
+            TokenGenerator tokenGenerator,
+            IEmailSender emailSender) 
         { 
             _dbContext = dbContext;
             _hasher = passwordHasher;
@@ -27,6 +36,7 @@ namespace TestAspNetApplication.Services
             _roleRepo = roleRepository;
             _logger = logger;
             _tokenGenerator = tokenGenerator;
+            _emailSender = emailSender;
         }
         public async Task<string> Login(LoginUserRequest form)
         {
@@ -37,7 +47,7 @@ namespace TestAspNetApplication.Services
         }
         public async Task Register(RegisterUserRequest form)
         {
-            var dbUser = await _userRepo.GetUserByEmail(form.Email);
+            var dbUser = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == form.Email);
             if (dbUser != null) {
                 throw new Exception("User with this email already exist");
             }
@@ -64,7 +74,10 @@ namespace TestAspNetApplication.Services
             }
             while (dbUserByToken != null);
             user.VerificationToken = token;
-            await _userRepo.CreateUser(user);
+            await _dbContext.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+            _logger.LogDebug($"User \'{user.Email}\' created");
+            await _emailSender.SendVerifyEmailTokenAsync(user.VerificationToken, user.Email);
         }
         public async Task VerifyEmail(string token)
         {

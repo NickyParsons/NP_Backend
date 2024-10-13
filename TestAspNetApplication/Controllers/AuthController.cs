@@ -58,13 +58,20 @@ namespace TestAspNetApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> VerifyEmail(string token)
         {
+            if (token == null) 
+            {
+                _logger.LogDebug("Token is null");
+                return BadRequest("Incorrect token"); 
+            }
             try
             {
                 await _authService.VerifyEmail(token);
+                _logger.LogDebug("Email successfully verified");
                 return Ok("Email successfully verified");
             }
             catch (Exception e)
             {
+                _logger.LogDebug(e.Message);
                 return BadRequest($"{e.Message}");
             }
         }
