@@ -82,15 +82,27 @@ namespace TestAspNetApplication.Services
         public async Task VerifyEmail(string token)
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
-            if (dbUser != null)
+            if (dbUser == null) throw new Exception("Token not found");
+            dbUser.VerifiedAt = DateTime.UtcNow;
+            _dbContext.SaveChanges();
+        }
+        public async Task ChangeEmail(ChangeEmailRequest form)
+        {
+            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == form.Email);
+            if (dbUser == null) throw new BadHttpRequestException("User with this e-mail not found");
+            dbUser.Email = form.NewEmail;
+            dbUser.VerifiedAt = null;
+            string token;
+            User? dbUserByToken;
+            do
             {
-                dbUser.VerifiedAt = DateTime.UtcNow;
-                _dbContext.SaveChanges();
+                token = _tokenGenerator.GenerateToken();
+                dbUserByToken = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
             }
-            else
-            {
-                throw new Exception("Token not found");
-            }
+            while (dbUserByToken != null);
+            dbUser.VerificationToken = token;
+            //Отправить письмо
+            _dbContext.SaveChanges();
         }
         public async Task ForgotPassword(string email)
         {

@@ -11,26 +11,27 @@ namespace TestAspNetApplication.Controllers
     public class UsersController : Controller
     {
         private ILogger<UsersController> _logger { get; set; }
-        private UserService _userService;
+        private ProfileService _profileService;
         private UserRepository _userRepository;
-        public UsersController(ILogger<UsersController> logger, UserService userService, UserRepository userRepository)
+        public UsersController(ILogger<UsersController> logger, ProfileService profileService, UserRepository userRepository)
         {
             _logger = logger;
-            _userService = userService;
+            _profileService = profileService;
             _userRepository = userRepository;
         }
         [Route("/users/{id:guid}")]
         [HttpGet]
         public async Task<IActionResult> GetUserData(Guid id)
         {
-            var user = await _userRepository.GetUserById(id, false);
-            if (user != null)
+            try
             {
-                return Json(user!);
+                var user = await _profileService.GetProfileData(id);
+                return Json(user);
             }
-            else
+            catch (BadHttpRequestException e)
             {
-                return NotFound();
+                _logger.LogDebug(e.Message);
+                return BadRequest(e.Message);
             }
         }
         [Authorize]
@@ -38,24 +39,20 @@ namespace TestAspNetApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> EditCurrentUser(EditUserRequest form)
         {
-            _logger.LogInformation($"Edit user method");
             var userId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
-            if (userId != form.Id)
-            {
-                return Unauthorized();
-            }
-            User user;
+            if (userId != form.Id) return Unauthorized();
+            User dbUser;
             if (Request.Form.Files.Count != 0)
             {
-                user = await _userService.EditUser(form, Request.Form.Files.First());
+                dbUser = await _profileService.EditProfile(form, Request.Form.Files.First());
             }
             else
             {
-                user = await _userService.EditUser(form, null);
+                dbUser = await _profileService.EditProfile(form, null);
             }
-            user.Articles.Clear();
-            user.Role = null;
-            return Json(user);
+            dbUser.Articles.Clear();
+            dbUser.Role = null;
+            return Json(dbUser);
         }
     }
 }

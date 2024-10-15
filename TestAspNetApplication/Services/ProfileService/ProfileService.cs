@@ -5,21 +5,33 @@ using System.Security.Claims;
 using TestAspNetApplication.Data.Entities;
 using TestAspNetApplication.Data;
 using TestAspNetApplication.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace TestAspNetApplication.Services
 {
-    public class UserService
+    public class ProfileService
     {
         private readonly UserRepository _userRepository;
         private readonly FileService _fileService;
-        private readonly ILogger<UserService> _logger;
-        public UserService(FileService fileService, ILogger<UserService> logger, UserRepository userRepository) 
+        private readonly ILogger<ProfileService> _logger;
+        PosgresDbContext _dbContext;
+        public ProfileService(FileService fileService, 
+            ILogger<ProfileService> logger, 
+            UserRepository userRepository,
+            PosgresDbContext dbContext) 
         {
             _fileService = fileService;
             _userRepository = userRepository;
             _logger = logger;
+            _dbContext = dbContext;
         }
-        public async Task<User> EditUser(EditUserRequest form, IFormFile? file)
+        public async Task<User?> GetProfileData(Guid id)
+        {
+            User? dbUser = await _dbContext.Users.Include(u => u.Role).FirstOrDefaultAsync(x => x.Id == id);
+            if (dbUser == null) throw new BadHttpRequestException("User not found");
+            return dbUser;
+        }
+        public async Task<User> EditProfile(EditUserRequest form, IFormFile? file)
         {
             if (form.isPasswordChanging)
             {

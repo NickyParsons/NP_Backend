@@ -12,6 +12,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json.Serialization;
 using TestAspNetApplication.Data;
 using TestAspNetApplication.Data.Entities;
 using TestAspNetApplication.Extensions;
@@ -29,7 +30,10 @@ namespace TestAspNetApplication
             //builder.Logging.AddProvider(new FileLoggerProvider(builder.Configuration.GetSection("Logging:LogDirectory").Value!));
             var services = builder.Services;
             services.AddCors();
-            services.AddControllers();
+            services.AddControllers().AddJsonOptions(option =>
+            {
+                option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            });
             services.AddSession();
             services.AddJwtAuthentication(builder.Configuration);
             services.AddAuthorization();
@@ -47,7 +51,7 @@ namespace TestAspNetApplication
             services.AddScoped<ArticleRepository>();
             services.AddScoped<ArticleService>();
             services.AddScoped<FileService>();
-            services.AddScoped<UserService>();
+            services.AddScoped<ProfileService>();
             services.AddTransient<TokenGenerator>();
             services.AddTransient<IEmailSender, SimpleEmailSender>();
             var app = builder.Build();
