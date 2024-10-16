@@ -41,7 +41,7 @@ namespace TestAspNetApplication.Services
         public async Task<string> Login(LoginUserRequest form)
         {
             var user = await _userRepo.GetUserByEmail(form.Email);
-            if (user == null) throw new Exception($"User {form.Email} not found");
+            if (user == null) throw new BadHttpRequestException($"User {form.Email} not found");
             if (!_hasher.Verify(user.HashedPassword, form.Password)) throw new Exception($"Password for {form.Email} incorrect");
             return _jwtProvider.GenerateToken(user);
         }
@@ -49,7 +49,7 @@ namespace TestAspNetApplication.Services
         {
             var dbUser = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == form.Email);
             if (dbUser != null) {
-                throw new Exception("User with this email already exist");
+                throw new BadHttpRequestException("User with this email already exist");
             }
             User user = new User();
             user.Email = form.Email;
@@ -75,14 +75,14 @@ namespace TestAspNetApplication.Services
             while (dbUserByToken != null);
             user.VerificationToken = token;
             await _dbContext.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
+            _dbContext.SaveChanges();
             _logger.LogDebug($"User \'{user.Email}\' created");
             await _emailSender.SendVerifyEmailTokenAsync(user.VerificationToken, user.Email);
         }
         public async Task VerifyEmail(string token)
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
-            if (dbUser == null) throw new Exception("Token not found");
+            if (dbUser == null) throw new BadHttpRequestException("Token not found");
             dbUser.VerifiedAt = DateTime.UtcNow;
             _dbContext.SaveChanges();
         }
@@ -101,13 +101,13 @@ namespace TestAspNetApplication.Services
             }
             while (dbUserByToken != null);
             dbUser.VerificationToken = token;
-            //Отправить письмо
             _dbContext.SaveChanges();
+            await _emailSender.SendVerifyEmailTokenAsync(dbUser.VerificationToken, dbUser.Email);
         }
         public async Task ForgotPassword(string email)
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
-            if (dbUser == null) throw new Exception("User with this email not found");
+            if (dbUser == null) throw new BadHttpRequestException("User with this email not found");
             string token;
             User? dbUserByToken;
             do
@@ -122,8 +122,8 @@ namespace TestAspNetApplication.Services
         public async Task ResetPassword(ResetPasswordRequest form)
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.PasswordResetToken == form.Token);
-            if (dbUser == null) throw new Exception("Token not found");
-            if(DateTime.UtcNow > dbUser.ResetTokenExpires) throw new Exception("Token expired");
+            if (dbUser == null) throw new BadHttpRequestException("Token not found");
+            if(DateTime.UtcNow > dbUser.ResetTokenExpires) throw new BadHttpRequestException("Token expired");
             dbUser.HashedPassword = _hasher.GenerateHash(form.Password);
             _dbContext.SaveChanges();
         }

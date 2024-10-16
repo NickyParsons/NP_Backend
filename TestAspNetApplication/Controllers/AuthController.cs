@@ -52,13 +52,15 @@ namespace TestAspNetApplication.Controllers
         [HttpGet]
         public IActionResult LogoutUser()
         {
-            Response.Cookies.Delete("nasty-boy");
+            try { Response.Cookies.Delete("nasty-boy"); }
+            catch (Exception) { _logger.LogDebug("Cookie doesn't found"); }
             return Redirect("/");
         }
         [Route("/verify-email")]
         [HttpPost]
-        public async Task<IActionResult> VerifyEmail(string token)
+        public async Task<IActionResult> VerifyEmail(string? token)
         {
+            _logger.LogDebug($"Token: {token}");
             if (token == null) 
             {
                 _logger.LogDebug("Token is null");
@@ -81,8 +83,13 @@ namespace TestAspNetApplication.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeEmail(ChangeEmailRequest form)
         {
-            _logger.LogDebug($"Change email: {form.Email} to {form.NewEmail}");
-            var cookieEmail = HttpContext.User.Claims.First(c => c.Type == "name").Value;
+            _logger.LogDebug($"Triyng to change email: {form.Email} to {form.NewEmail}");
+            var cookieEmail = HttpContext.User.Identity?.Name;
+            if (cookieEmail == null)
+            {
+                _logger.LogDebug("Cant get old e-mail from cookie");
+                return BadRequest("Something wrong with E-mail");
+            }
             if (form.Email != cookieEmail)
             {
                 _logger.LogDebug("Old email in request doesn't match user email in cookie");
@@ -97,6 +104,8 @@ namespace TestAspNetApplication.Controllers
             {
                 await _authService.ChangeEmail(form);
                 _logger.LogDebug("Email successfully changed");
+                try { Response.Cookies.Delete("nasty-boy"); }
+                catch (Exception) { _logger.LogDebug("Cookie doesn't found"); }
                 return Ok("Email successfully changed");
             }
             catch (Exception e)
@@ -107,15 +116,22 @@ namespace TestAspNetApplication.Controllers
         }
         [Route("/forgot-password")]
         [HttpPost]
-        public async Task<IActionResult> ForgotPassword(string email)
+        public async Task<IActionResult> ForgotPassword(string? email)
         {
+            if (email == null)
+            {
+                _logger.LogDebug("E-mail is empty");
+                return BadRequest($"E-mail is empty");
+            }
             try
             {
                 await _authService.ForgotPassword(email);
+                _logger.LogDebug("Password could be reset now");
                 return Ok("Password could be reset now");
             }
             catch (Exception e)
             {
+                _logger.LogDebug(e.Message);
                 return BadRequest($"{e.Message}");
             }
         }
@@ -126,10 +142,12 @@ namespace TestAspNetApplication.Controllers
             try
             {
                 await _authService.ResetPassword(form);
+                _logger.LogDebug("Password successfully changed");
                 return Ok("Password successfully changed");
             }
             catch (Exception e)
             {
+                _logger.LogDebug(e.Message);
                 return BadRequest($"{e.Message}");
             }
         }

@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using System.Web;
+using static System.Net.WebRequestMethods;
 
 namespace TestAspNetApplication.Services
 {
@@ -32,7 +34,7 @@ namespace TestAspNetApplication.Services
             MailAddress to = new MailAddress(email);
             MailMessage message = new MailMessage(from, to);
             message.Subject = "Confirm your email";
-            message.Body = $"https://nickyparsons.ru/verify-email?token={token}";
+            message.Body = CreateEmailBody(token);
             try
             {
                 await _smtpClient.SendMailAsync(message);
@@ -42,6 +44,15 @@ namespace TestAspNetApplication.Services
             {
                 _logger.LogWarning(e.Message);
             } 
+        }
+        public string CreateEmailBody(string token)
+        {
+            string body = string.Empty;
+            body += "<p>Hello. To confirm your E-mail at nickyparsons.ru go to url:</p>";
+            body += $"<p>https://nickyparsons.ru/verify-email?token={HttpUtility.UrlEncode(token)}</p>";
+            body += "<p>or use manually this token:</p>";
+            body += $"<p>{token}</p>";
+            return body;
         }
     }
 }

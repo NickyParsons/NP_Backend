@@ -50,6 +50,7 @@ namespace TestAspNetApplication.Controllers
             {
                 dbUser = await _profileService.EditProfile(form, null);
             }
+            //тут какаято хуйня
             dbUser.Articles.Clear();
             dbUser.Role = null;
             return Json(dbUser);
