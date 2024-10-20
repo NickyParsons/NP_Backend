@@ -90,6 +90,8 @@ namespace TestAspNetApplication.Services
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == form.Email);
             if (dbUser == null) throw new BadHttpRequestException("User with this e-mail not found");
+            User? dbUserWithNewEmail = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Email == form.NewEmail);
+            if (dbUserWithNewEmail != null) throw new BadHttpRequestException("User with this e-mail already exist");
             dbUser.Email = form.NewEmail;
             dbUser.VerifiedAt = null;
             string token;

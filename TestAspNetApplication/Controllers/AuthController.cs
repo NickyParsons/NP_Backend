@@ -26,7 +26,7 @@ namespace TestAspNetApplication.Controllers
                 _logger.LogInformation($"Successfull reistration {form.Email}");
                 return Ok();
             }
-            catch (Exception e)
+            catch (BadHttpRequestException e)
             {
                 _logger.LogDebug(e.Message);
                 return BadRequest(e.Message);
@@ -42,7 +42,7 @@ namespace TestAspNetApplication.Controllers
                 _logger.LogInformation($"Successfull login {form.Email}");
                 return Json(new { token = token });
             }
-            catch (Exception e)
+            catch (BadHttpRequestException e)
             {
                 _logger.LogDebug($"{e.Message}");
                 return BadRequest("Email or password incorrect");
@@ -72,7 +72,7 @@ namespace TestAspNetApplication.Controllers
                 _logger.LogDebug("Email successfully verified");
                 return Ok("Email successfully verified");
             }
-            catch (Exception e)
+            catch (BadHttpRequestException e)
             {
                 _logger.LogDebug(e.Message);
                 return BadRequest($"{e.Message}");
@@ -108,7 +108,7 @@ namespace TestAspNetApplication.Controllers
                 catch (Exception) { _logger.LogDebug("Cookie doesn't found"); }
                 return Ok("Email successfully changed");
             }
-            catch (Exception e)
+            catch (BadHttpRequestException e)
             {
                 _logger.LogDebug(e.Message);
                 return BadRequest($"{e.Message}");
@@ -129,7 +129,7 @@ namespace TestAspNetApplication.Controllers
                 _logger.LogDebug("Password could be reset now");
                 return Ok("Password could be reset now");
             }
-            catch (Exception e)
+            catch (BadHttpRequestException e)
             {
                 _logger.LogDebug(e.Message);
                 return BadRequest($"{e.Message}");
@@ -145,7 +145,7 @@ namespace TestAspNetApplication.Controllers
                 _logger.LogDebug("Password successfully changed");
                 return Ok("Password successfully changed");
             }
-            catch (Exception e)
+            catch (BadHttpRequestException e)
             {
                 _logger.LogDebug(e.Message);
                 return BadRequest($"{e.Message}");
