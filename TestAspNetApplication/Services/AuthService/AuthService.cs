@@ -42,7 +42,7 @@ namespace TestAspNetApplication.Services
         {
             var user = await _userRepo.GetUserByEmail(form.Email);
             if (user == null) throw new BadHttpRequestException($"User {form.Email} not found");
-            if (!_hasher.Verify(user.HashedPassword, form.Password)) throw new Exception($"Password for {form.Email} incorrect");
+            if (!_hasher.Verify(user.HashedPassword, form.Password)) throw new BadHttpRequestException($"Password for {form.Email} incorrect");
             return _jwtProvider.GenerateToken(user);
         }
         public async Task Register(RegisterUserRequest form)
@@ -120,6 +120,7 @@ namespace TestAspNetApplication.Services
             dbUser.PasswordResetToken = token;
             dbUser.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
             _dbContext.SaveChanges();
+            await _emailSender.SendResetPasswordTokenAsync(dbUser.PasswordResetToken, dbUser.Email);
         }
         public async Task ResetPassword(ResetPasswordRequest form)
         {

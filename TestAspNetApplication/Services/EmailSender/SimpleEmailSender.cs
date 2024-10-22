@@ -1,10 +1,14 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using System.Web;
-using static System.Net.WebRequestMethods;
 
 namespace TestAspNetApplication.Services
 {
+    public enum SenderType
+    {
+        VerifyEmail,
+        ForgotPassword
+    }
     public class SimpleEmailSender : IEmailSender
     {
         private readonly string _login;
@@ -23,18 +27,25 @@ namespace TestAspNetApplication.Services
                 Timeout = 10000
             };
         }
-        public Task SendResetPasswordTokenAsync(string token, string email)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task SendVerifyEmailTokenAsync(string token, string email)
+        public async Task SendTokenMailAsync(string email, SenderType tokenType, string token)
         {
             MailAddress from = new MailAddress("no-reply@nickyparsons.ru", "NickyParsons RU");
             MailAddress to = new MailAddress(email);
             MailMessage message = new MailMessage(from, to);
-            message.Subject = "Confirm your email";
-            message.Body = CreateEmailBody(token);
+            switch (tokenType)
+            {
+                case SenderType.VerifyEmail:
+                    message.Subject = "Confirm your email";
+                    message.Body = CreateVerificationEmailBody(token);
+                    break;
+                case SenderType.ForgotPassword:
+                    message.Subject = "Reset your password";
+                    message.Body = CreateForgotPasswordBody(token);
+                    break;
+                default:
+                    _logger.LogDebug($"Unknown sender type");
+                    throw new NotImplementedException();
+            }
             try
             {
                 await _smtpClient.SendMailAsync(message);
@@ -43,13 +54,31 @@ namespace TestAspNetApplication.Services
             catch (Exception e)
             {
                 _logger.LogWarning(e.Message);
-            } 
+            }
         }
-        public string CreateEmailBody(string token)
+        public async Task SendResetPasswordTokenAsync(string token, string email)
+        {
+            await SendTokenMailAsync(email, SenderType.ForgotPassword, token);
+        }
+
+        public async Task SendVerifyEmailTokenAsync(string token, string email)
+        {
+            await SendTokenMailAsync(email, SenderType.VerifyEmail, token);
+        }
+        public string CreateVerificationEmailBody(string token)
         {
             string body = string.Empty;
             body += "<p>Hello. To confirm your E-mail at nickyparsons.ru go to url:</p>";
             body += $"<p>https://nickyparsons.ru/verify-email?token={HttpUtility.UrlEncode(token)}</p>";
+            body += "<p>or use manually this token:</p>";
+            body += $"<p>{token}</p>";
+            return body;
+        }
+        public string CreateForgotPasswordBody(string token)
+        {
+            string body = string.Empty;
+            body += "<p>Hello. To reset your password at nickyparsons.ru go to url:</p>";
+            body += $"<p>https://nickyparsons.ru/reset-password?token={HttpUtility.UrlEncode(token)}</p>";
             body += "<p>or use manually this token:</p>";
             body += $"<p>{token}</p>";
             return body;

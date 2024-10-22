@@ -14,16 +14,19 @@ namespace TestAspNetApplication.Services
         private readonly UserRepository _userRepository;
         private readonly FileService _fileService;
         private readonly ILogger<ProfileService> _logger;
-        PosgresDbContext _dbContext;
+        private readonly PosgresDbContext _dbContext;
+        private readonly IPasswordHasher _passwordHasher;
         public ProfileService(FileService fileService, 
             ILogger<ProfileService> logger, 
             UserRepository userRepository,
-            PosgresDbContext dbContext) 
+            PosgresDbContext dbContext,
+            IPasswordHasher passwordHasher) 
         {
             _fileService = fileService;
             _userRepository = userRepository;
             _logger = logger;
             _dbContext = dbContext;
+            _passwordHasher = passwordHasher;
         }
         public async Task<User?> GetProfileData(Guid id)
         {
@@ -33,37 +36,21 @@ namespace TestAspNetApplication.Services
         }
         public async Task<User> EditProfile(EditUserRequest form, IFormFile? file)
         {
+            User? dbUser = await _dbContext.Users.Include(u => u.Role).Include(u => u.Articles).FirstOrDefaultAsync(x => x.Id == form.Id);
+            if (dbUser == null) throw new BadHttpRequestException($"User {form.Id} not found");
             if (form.isPasswordChanging)
             {
-                _logger.LogInformation($"Нужно поменять пароль");
+                if (form.newPassword == null) throw new BadHttpRequestException("New password is empty");
+                if (form.newPassword.Length < 6 || form.newPassword.Length <=0) throw new BadHttpRequestException("6 symbols minimum");
+                if (form.newPassword != null && form.oldPassword == null) throw new BadHttpRequestException("Current password is empty");
+                if (!_passwordHasher.Verify(dbUser.HashedPassword, form.oldPassword!)) throw new BadHttpRequestException("Current password incorrect");
+                dbUser.HashedPassword = _passwordHasher.GenerateHash(form.newPassword!);
             }
-            else
-            {
-                _logger.LogInformation($"Менять пароль не нужно");
-            }
-
-
-            var user = await _userRepository.GetUserById(form.Id, true);
-            if (user != null)
-            {
-                if (form.Firstname != null)
-                {
-                    user.FirstName = form.Firstname;
-                }
-                if (form.Lastname != null)
-                {
-                    user.LastName = form.Lastname;
-                }
-                if (file != null)
-                {
-                    user.ImageUrl = await _fileService.UploadFormFile(file, "profiles", (Guid)user.Id);
-                }
-                if (await _userRepository.EditUser(user) == null)
-                {
-                    throw new Exception("Something gone wrong while editing user");
-                }
-            }
-            return user!;
+            if (form.Firstname != null) dbUser.FirstName = form.Firstname;
+            if (form.Lastname != null) dbUser.LastName = form.Lastname;
+            if (file != null) dbUser.ImageUrl = await _fileService.UploadFormFile(file, "profiles", (Guid)dbUser.Id);
+            _dbContext.SaveChanges();
+            return dbUser;
         }
     }
 }

@@ -34,13 +34,17 @@ namespace TestAspNetApplication.Controllers
                 return BadRequest(e.Message);
             }
         }
-        [Authorize]
         [Route("/users/{id:guid}/edit")]
         [HttpPost]
         public async Task<IActionResult> EditCurrentUser(EditUserRequest form)
         {
-            var userId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
-            if (userId != form.Id) return Unauthorized();
+            _logger.LogDebug($"Triyng to change profile: {form.Id}");
+
+            var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
+            if (cookieId != form.Id) {
+                _logger.LogDebug($"Cookie ID and form ID doesn't match");
+                return BadRequest("Something wrong with ID");
+            }
             User dbUser;
             if (Request.Form.Files.Count != 0)
             {
@@ -50,9 +54,6 @@ namespace TestAspNetApplication.Controllers
             {
                 dbUser = await _profileService.EditProfile(form, null);
             }
-            //тут какаято хуйня
-            dbUser.Articles.Clear();
-            dbUser.Role = null;
             return Json(dbUser);
         }
     }
