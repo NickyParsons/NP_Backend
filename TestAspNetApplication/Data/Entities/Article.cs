@@ -11,5 +11,6 @@
         public DateTimeOffset UpdatedAt { get; set; }
         public Guid AuthorId { get; set; }
         public User? Author { get; set; }
+        public List<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

@@ -52,6 +52,7 @@ namespace TestAspNetApplication
             services.AddScoped<ArticleService>();
             services.AddScoped<FileService>();
             services.AddScoped<ProfileService>();
+            services.AddScoped<CommentsService>();
             services.AddTransient<TokenGenerator>();
             services.AddTransient<IEmailSender, SimpleEmailSender>();
             var app = builder.Build();

@@ -18,6 +18,7 @@ namespace TestAspNetApplication.Data.Entities
         public DateTimeOffset? VerifiedAt { get; set; }
         public string? PasswordResetToken { get; set; }
         public DateTimeOffset? ResetTokenExpires { get; set; }
+        public List<Comment> Comments { get; set; } = new List<Comment>();
         public override string ToString()
         {
             return $"[{Id}] {FirstName} {LastName} {Email}";

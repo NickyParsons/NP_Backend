@@ -20,6 +20,8 @@ namespace TestAspNetApplication.Services
             claims.Add(new Claim("id", user.Id.ToString()));
             claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.Email));
             claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Role!.Name));
+            string verified = (user.VerifiedAt != null ? true : false).ToString();
+            claims.Add(new Claim("verified", verified));
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtOptions:SecretKey"]!)), 
                 SecurityAlgorithms.HmacSha256

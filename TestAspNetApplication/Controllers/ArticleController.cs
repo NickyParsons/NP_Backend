@@ -19,7 +19,7 @@ namespace TestAspNetApplication.Controllers
         }
         [Authorize]
         [HttpPost]
-        [Route("/articles/new")]
+        [Route("/articles")]
         public async Task<IActionResult> CreateNewArticle(CreateArticleRequest form)
         {
             form.Id = Guid.NewGuid();

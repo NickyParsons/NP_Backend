@@ -10,6 +10,7 @@ namespace TestAspNetApplication.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<Article> Articles { get; set; }
+        public DbSet<Comment> Comments { get; set; }
         public PosgresDbContext(DbContextOptions<PosgresDbContext> options) : base(options)
         {
             //Database.EnsureDeleted();
@@ -24,6 +25,7 @@ namespace TestAspNetApplication.Data
             modelBuilder.ApplyConfiguration(new RoleConfiguration());
             modelBuilder.ApplyConfiguration(new PersonConfiguration());
             modelBuilder.ApplyConfiguration(new ArticleConfiguration());
+            modelBuilder.ApplyConfiguration(new CommentConfiguration());
             var adminRole = new Role { Id = Guid.NewGuid(), Name = "Admin", Description = "Администратор" };
             var userRole = new Role { Id = Guid.NewGuid(), Name = "User", Description = "Пользователь" };
             modelBuilder.Entity<Role>().HasData(adminRole);

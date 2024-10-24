@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TestAspNetApplication.Data;
@@ -11,9 +12,11 @@ using TestAspNetApplication.Data;
 namespace TestAspNetApplication.Migrations
 {
     [DbContext(typeof(PosgresDbContext))]
-    partial class PosgresDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241024093052_AddingComments")]
+    partial class AddingComments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -75,7 +78,7 @@ namespace TestAspNetApplication.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTimeOffset?>("UpdatedAt")
+                    b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
@@ -129,13 +132,13 @@ namespace TestAspNetApplication.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("2fc2aa93-cae2-48e7-8d96-32e8052b199a"),
+                            Id = new Guid("64c3e3d5-5451-4ef1-b78b-dd4d5b9b2d88"),
                             Description = "Администратор",
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("a056de6a-63b9-4c33-bb02-212318eec503"),
+                            Id = new Guid("869ebae4-748a-46a7-ab9c-8628fedcc086"),
                             Description = "Пользователь",
                             Name = "User"
                         });
@@ -188,10 +191,10 @@ namespace TestAspNetApplication.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("29a715f7-2c5f-4dcd-87a8-696b6bf1be60"),
+                            Id = new Guid("5e08c879-b535-4236-9a43-20785d4c711c"),
                             Email = "admin@admin",
                             HashedPassword = "ClS/8E1JPP39gGPmRyBl+w==;9eoVht2Ofj0+SGFPWBL/WivJKHjT1ffYFPD4dj90WJE=",
-                            RoleId = new Guid("2fc2aa93-cae2-48e7-8d96-32e8052b199a")
+                            RoleId = new Guid("64c3e3d5-5451-4ef1-b78b-dd4d5b9b2d88")
                         });
                 });
 
