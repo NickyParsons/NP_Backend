@@ -52,7 +52,7 @@ namespace TestAspNetApplication.Controllers
         }
         [Authorize]
         [HttpPost]
-        [Route("/comments/{commentId}")]
+        [Route("/comments/{commentId}/edit")]
         public async Task<IActionResult> EditComment([FromRoute] Guid commentId, [FromForm] CreateCommentRequest form)
         {
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
@@ -67,6 +67,29 @@ namespace TestAspNetApplication.Controllers
             try
             {
                 return Json(await _commentsService.EditComment(commentId ,form, adminRules));
+            }
+            catch (BadHttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [Authorize]
+        [HttpPost]
+        [Route("/comments/{commentId}/delete")]
+        public async Task<IActionResult> DeleteComment([FromRoute] Guid commentId, [FromForm] Guid authorId)
+        {
+            var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
+            if (authorId != cookieId)
+            {
+                _logger.LogDebug("User ID from cookie and user ID from request doesn't match");
+                return BadRequest("Something wrong with AuthorID");
+            }
+            var cookieRole = HttpContext.User.Claims.First(x => x.Type == ClaimsIdentity.DefaultRoleClaimType);
+            _logger.LogDebug($"Cookie role: {cookieRole.Value}");
+            bool adminRules = (cookieRole != null && (cookieRole.Value == "Admin" || cookieRole.Value == "Moder"));
+            try
+            {
+                return Json(await _commentsService.DeleteComment(commentId, authorId, adminRules));
             }
             catch (BadHttpRequestException e)
             {

@@ -45,12 +45,34 @@ namespace TestAspNetApplication.Services
                 _logger.LogDebug("Comment with this id not found");
                 throw new BadHttpRequestException($"Comment with id {commentId} not found");
             }
-            if (dbComment.AuthorId != form.AuthorId || !adminRules)
+            if (!(dbComment.AuthorId == form.AuthorId || adminRules))
             {
-                _logger.LogDebug("You have no permissions to edit this comment");
-                throw new BadHttpRequestException($"You have no permissions to edit comment {commentId}");
+                _logger.LogDebug($"You have no permissions to edit comment {commentId}. Admin rules: {adminRules}. Author ID match: {dbComment.AuthorId == form.AuthorId}");
+                _logger.LogDebug($"Author ID from form: {form.AuthorId}");
+                _logger.LogDebug($"Author ID from comment in DB: {dbComment.AuthorId}");
+                throw new BadHttpRequestException($"You have no permissions to edit this comment");
             }
             dbComment.Text = form.Text;
+            dbComment.UpdatedAt = DateTime.UtcNow;
+            _dbContext.SaveChanges();
+            return dbComment;
+        }
+        public async Task<Comment> DeleteComment(Guid commentId, Guid authorId, bool adminRules)
+        {
+            Comment? dbComment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
+            if (dbComment == null)
+            {
+                _logger.LogDebug("Comment with this id not found");
+                throw new BadHttpRequestException($"Comment with id {commentId} not found");
+            }
+            if (!(dbComment.AuthorId == authorId || adminRules))
+            {
+                _logger.LogDebug($"You have no permissions to delete comment {commentId}. Admin rules: {adminRules}. Author ID match: {dbComment.AuthorId == authorId}");
+                _logger.LogDebug($"Author ID from form: {authorId}");
+                _logger.LogDebug($"Author ID from comment in DB: {dbComment.AuthorId}");
+                throw new BadHttpRequestException($"You have no permissions to delete this comment");
+            }
+            _dbContext.Comments.Remove(dbComment);
             _dbContext.SaveChanges();
             return dbComment;
         }
