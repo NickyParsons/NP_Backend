@@ -15,9 +15,11 @@ namespace TestAspNetApplication.Data.Entities
         public string? ImageUrl { get; set; }
         public List<Article> Articles { get; set; } = new List<Article>();
         public string? VerificationToken { get; set; }
-        public DateTimeOffset? VerifiedAt { get; set; }
+        public DateTime? VerifiedAt { get; set; }
         public string? PasswordResetToken { get; set; }
-        public DateTimeOffset? ResetTokenExpires { get; set; }
+        public DateTime? ResetTokenExpires { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime? RefreshTokenExpires { get; set; }
         public List<Comment> Comments { get; set; } = new List<Comment>();
         public override string ToString()
         {

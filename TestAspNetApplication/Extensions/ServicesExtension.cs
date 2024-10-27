@@ -15,7 +15,6 @@ namespace TestAspNetApplication.Extensions
                 validateParametrs.ValidateAudience = false;
                 validateParametrs.ValidateLifetime = true;
                 validateParametrs.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetSection("JwtOptions:SecretKey").Value!));
-                validateParametrs.ValidateLifetime = true;
                 option.TokenValidationParameters = validateParametrs;
                 option.Events = new JwtBearerEvents
                 {

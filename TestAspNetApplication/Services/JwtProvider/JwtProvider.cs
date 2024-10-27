@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -29,10 +30,24 @@ namespace TestAspNetApplication.Services
             var token = new JwtSecurityToken(
                 claims: claims,
                 signingCredentials: signingCredentials,
-                expires: DateTime.UtcNow.AddHours(double.Parse(_config["JwtOptions:ExpiresHours"]!))
+                //expires: DateTime.UtcNow.AddHours(double.Parse(_config["JwtOptions:ExpiresHours"]!))
+                expires: DateTime.UtcNow.AddMinutes(30)
                 );
             var tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;
+        }
+
+        public ClaimsPrincipal? GetClaimsPrincipal(string token)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config.GetSection("JwtOptions:SecretKey").Value!));
+            var validateParametrs = new TokenValidationParameters
+            {
+                IssuerSigningKey = securityKey,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false
+            };
+            return new JwtSecurityTokenHandler().ValidateToken(token, validateParametrs, out _);
         }
     }
 }

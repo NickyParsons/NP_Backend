@@ -5,6 +5,7 @@ using System.Security.Claims;
 using TestAspNetApplication.Data.Entities;
 using TestAspNetApplication.Data;
 using TestAspNetApplication.DTO;
+using TestAspNetApplication.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace TestAspNetApplication.Services
@@ -38,12 +39,47 @@ namespace TestAspNetApplication.Services
             _tokenGenerator = tokenGenerator;
             _emailSender = emailSender;
         }
-        public async Task<string> Login(LoginUserRequest form)
+        public async Task<LoginUserResponse> Login(LoginUserRequest form)
         {
-            var user = await _userRepo.GetUserByEmail(form.Email);
-            if (user == null) throw new BadHttpRequestException($"User {form.Email} not found");
-            if (!_hasher.Verify(user.HashedPassword, form.Password)) throw new BadHttpRequestException($"Password for {form.Email} incorrect");
-            return _jwtProvider.GenerateToken(user);
+            var dbUser = await _dbContext.Users.Include(u=>u.Role).FirstOrDefaultAsync(u => u.Email == form.Email);
+            if (dbUser == null)
+            {
+                _logger.LogDebug($"User {form.Email} not found");
+                throw new BadHttpRequestException($"User {form.Email} not found"); 
+            }
+            if (!_hasher.Verify(dbUser.HashedPassword, form.Password)) throw new BadHttpRequestException($"Password for {form.Email} incorrect");
+            string accessToken = _jwtProvider.GenerateToken(dbUser);
+            dbUser.RefreshToken = await GenerateToken(GeneratedTokenType.RefreshToken);
+            dbUser.RefreshTokenExpires = DateTime.UtcNow.AddDays(7);
+            _dbContext.SaveChanges();
+            return new LoginUserResponse { AccessToken = accessToken, RefreshToken = dbUser.RefreshToken };
+        }
+        public async Task<LoginUserResponse> RefreshAccessToken(string accessToken, string refreshToken)
+        {
+            var principal = _jwtProvider.GetClaimsPrincipal(accessToken);
+            if (principal?.Identity?.Name is null)
+            {
+                _logger.LogDebug("Can't get e-mail from access token");
+                throw new BadHttpRequestException("Can't get e-mail from access token");
+            }
+            string tokenEmail = principal.Identity.Name;
+            User? dbUser = await _dbContext.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == tokenEmail);
+            if (dbUser == null)
+            {
+                _logger.LogDebug($"User {tokenEmail} not found");
+                throw new BadHttpRequestException($"User {tokenEmail} not found");
+            }
+            if (refreshToken != dbUser.RefreshToken || DateTime.UtcNow > dbUser.RefreshTokenExpires)
+            {
+                _logger.LogDebug($"Invalid refresh token");
+                throw new BadHttpRequestException($"Invalid refresh token");
+            }
+            string newAccessToken = _jwtProvider.GenerateToken(dbUser);
+            dbUser.RefreshToken = await GenerateToken(GeneratedTokenType.RefreshToken);
+            dbUser.RefreshTokenExpires = DateTime.UtcNow.AddHours(24);
+            _dbContext.SaveChanges();
+            _logger.LogDebug($"Access token for {dbUser.Email} updated!");
+            return new LoginUserResponse { AccessToken = newAccessToken, RefreshToken = dbUser.RefreshToken };
         }
         public async Task Register(RegisterUserRequest form)
         {
@@ -65,15 +101,7 @@ namespace TestAspNetApplication.Services
             {
                 user.Role = userRole!;
             }
-            string token;
-            User? dbUserByToken;
-            do
-            {
-                token = _tokenGenerator.GenerateToken();
-                dbUserByToken = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
-            }
-            while (dbUserByToken != null);
-            user.VerificationToken = token;
+            user.VerificationToken = await GenerateToken(GeneratedTokenType.VerifyEmail);
             await _dbContext.AddAsync(user);
             _dbContext.SaveChanges();
             _logger.LogDebug($"User \'{user.Email}\' created");
@@ -94,15 +122,7 @@ namespace TestAspNetApplication.Services
             if (dbUserWithNewEmail != null) throw new BadHttpRequestException("User with this e-mail already exist");
             dbUser.Email = form.NewEmail;
             dbUser.VerifiedAt = null;
-            string token;
-            User? dbUserByToken;
-            do
-            {
-                token = _tokenGenerator.GenerateToken();
-                dbUserByToken = await _dbContext.Users.FirstOrDefaultAsync(x => x.VerificationToken == token);
-            }
-            while (dbUserByToken != null);
-            dbUser.VerificationToken = token;
+            dbUser.VerificationToken = await GenerateToken(GeneratedTokenType.VerifyEmail);
             _dbContext.SaveChanges();
             await _emailSender.SendVerifyEmailTokenAsync(dbUser.VerificationToken, dbUser.Email);
         }
@@ -110,15 +130,8 @@ namespace TestAspNetApplication.Services
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
             if (dbUser == null) throw new BadHttpRequestException("User with this email not found");
-            string token;
-            User? dbUserByToken;
-            do
-            {
-                token = _tokenGenerator.GenerateToken();
-                dbUserByToken = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.PasswordResetToken == token);
-            } while (dbUserByToken != null);
-            dbUser.PasswordResetToken = token;
-            dbUser.ResetTokenExpires = DateTime.UtcNow.AddHours(1);
+            dbUser.PasswordResetToken = await GenerateToken(GeneratedTokenType.ForgotPassword);
+            dbUser.ResetTokenExpires = DateTime.UtcNow.AddHours(12);
             _dbContext.SaveChanges();
             await _emailSender.SendResetPasswordTokenAsync(dbUser.PasswordResetToken, dbUser.Email);
         }
@@ -129,6 +142,31 @@ namespace TestAspNetApplication.Services
             if(DateTime.UtcNow > dbUser.ResetTokenExpires) throw new BadHttpRequestException("Token expired");
             dbUser.HashedPassword = _hasher.GenerateHash(form.Password);
             _dbContext.SaveChanges();
+        }
+        private async Task<string> GenerateToken(GeneratedTokenType tokenType)
+        {
+            string token;
+            User? dbUserByToken;
+            do
+            {
+                token = _tokenGenerator.GenerateToken();
+                switch (tokenType)
+                {
+                    case GeneratedTokenType.ForgotPassword:
+                        dbUserByToken = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.PasswordResetToken == token);
+                        break;
+                    case GeneratedTokenType.VerifyEmail:
+                        dbUserByToken = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.VerificationToken == token);
+                        break;
+                    case GeneratedTokenType.RefreshToken:
+                        dbUserByToken = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(x => x.RefreshToken == token);
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                
+            } while (dbUserByToken != null);
+            return token;
         }
     }
 }

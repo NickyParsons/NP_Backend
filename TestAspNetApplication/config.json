@@ -2,7 +2,8 @@
   "ApplyMigration": true,
   "urls": "http://0.0.0.0:31666",
   "ConnectionStrings": {
-    "DefaultConnection": "Host=postgres_db;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992"
+    //"DefaultConnection": "Host=postgres_db;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992"
+    "DefaultConnection": "Host=localhost;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992"
   },
   "Logging": {
     "LogDirectory": "D:\\TEMP\\TestSite",
@@ -18,6 +19,6 @@
     "SecretKey": "zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992zona1992",
     "Audience": "audience",
     "Issuer": "issuer",
-    "ExpiresHours": "12"
+    "ExpiresHours": "1"
   }
 }

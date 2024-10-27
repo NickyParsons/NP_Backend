@@ -1,14 +1,10 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using System.Web;
+using TestAspNetApplication.Enums;
 
 namespace TestAspNetApplication.Services
 {
-    public enum SenderType
-    {
-        VerifyEmail,
-        ForgotPassword
-    }
     public class SimpleEmailSender : IEmailSender
     {
         private readonly string _login;

@@ -38,9 +38,11 @@ namespace TestAspNetApplication.Controllers
         {
             try
             {
-                string token = await _authService.Login(form);
+                LoginUserResponse response = await _authService.Login(form);
                 _logger.LogInformation($"Successfull login {form.Email}");
-                return Json(new { token = token });
+                //Response.Cookies.Append("nasty-boy", response.AccessToken);
+                //Response.Cookies.Append("passion-flowers", response.RefreshToken);
+                return Json(response);
             }
             catch (BadHttpRequestException e)
             {
@@ -48,11 +50,33 @@ namespace TestAspNetApplication.Controllers
                 return BadRequest("Email or password incorrect");
             }
         }
+        [Route("/refresh-token")]
+        [HttpGet]
+        public async Task<IActionResult> RefreshAccessToken()
+        {
+            var accessToken = Request.Cookies["nasty-boy"];
+            if (accessToken == null) return BadRequest("Access token is empty");
+            var refreshToken = Request.Cookies["passion-flowers"];
+            if (refreshToken == null) return BadRequest("Refresh token is empty");
+            try
+            {
+                LoginUserResponse response = await _authService.RefreshAccessToken(accessToken, refreshToken);
+                return Json(response);
+            }
+            catch (BadHttpRequestException e)
+            {
+                _logger.LogDebug($"{e.Message}");
+                return BadRequest(e.Message);
+            }
+        }
         [Route("/logout")]
         [HttpGet]
         public IActionResult LogoutUser()
         {
-            try { Response.Cookies.Delete("nasty-boy"); }
+            try { 
+                Response.Cookies.Delete("nasty-boy");
+                Response.Cookies.Delete("passion-flowers");
+            }
             catch (Exception) { _logger.LogDebug("Cookie doesn't found"); }
             return Redirect("/");
         }

@@ -24,30 +24,30 @@ namespace TestAspNetApplication.Services
         {
             return await _dbContext.Comments.AsNoTracking().Where(c => c.ArticleId == articleId).ToListAsync();
         }
-        public async Task<Comment> AddComment(Guid articleId, CreateCommentRequest form)
+        public async Task<Comment> AddComment(CreateCommentRequest form)
         {
             Comment comment = new Comment { 
-                ArticleId = articleId, 
+                ArticleId = form.ArticleId, 
                 AuthorId = form.AuthorId,
                 Text = form.Text,
                 CreatedAt = DateTime.UtcNow
             };
             await _dbContext.Comments.AddAsync(comment);
             _dbContext.SaveChanges();
-            _logger.LogDebug($"Comment \'{form.Text}\' added to \'{articleId}\'");
+            _logger.LogDebug($"Comment \'{form.Text}\' added to \'{form.ArticleId}\'");
             return comment;
         }
-        public async Task<Comment> EditComment(Guid commentId, CreateCommentRequest form, bool adminRules)
+        public async Task<Comment> EditComment(EditCommentRequest form, bool adminRules)
         {
-            Comment? dbComment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
+            Comment? dbComment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == form.CommentId);
             if (dbComment == null) 
             {
                 _logger.LogDebug("Comment with this id not found");
-                throw new BadHttpRequestException($"Comment with id {commentId} not found");
+                throw new BadHttpRequestException($"Comment with id {form.CommentId} not found");
             }
             if (!(dbComment.AuthorId == form.AuthorId || adminRules))
             {
-                _logger.LogDebug($"You have no permissions to edit comment {commentId}. Admin rules: {adminRules}. Author ID match: {dbComment.AuthorId == form.AuthorId}");
+                _logger.LogDebug($"You have no permissions to edit comment {form.CommentId}. Admin rules: {adminRules}. Author ID match: {dbComment.AuthorId == form.AuthorId}");
                 _logger.LogDebug($"Author ID from form: {form.AuthorId}");
                 _logger.LogDebug($"Author ID from comment in DB: {dbComment.AuthorId}");
                 throw new BadHttpRequestException($"You have no permissions to edit this comment");
@@ -57,18 +57,18 @@ namespace TestAspNetApplication.Services
             _dbContext.SaveChanges();
             return dbComment;
         }
-        public async Task<Comment> DeleteComment(Guid commentId, Guid authorId, bool adminRules)
+        public async Task<Comment> DeleteComment(DeleteCommentRequest form, bool adminRules)
         {
-            Comment? dbComment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == commentId);
+            Comment? dbComment = await _dbContext.Comments.FirstOrDefaultAsync(c => c.Id == form.CommentId);
             if (dbComment == null)
             {
                 _logger.LogDebug("Comment with this id not found");
-                throw new BadHttpRequestException($"Comment with id {commentId} not found");
+                throw new BadHttpRequestException($"Comment with id {form.CommentId} not found");
             }
-            if (!(dbComment.AuthorId == authorId || adminRules))
+            if (!(dbComment.AuthorId == form.AuthorId || adminRules))
             {
-                _logger.LogDebug($"You have no permissions to delete comment {commentId}. Admin rules: {adminRules}. Author ID match: {dbComment.AuthorId == authorId}");
-                _logger.LogDebug($"Author ID from form: {authorId}");
+                _logger.LogDebug($"You have no permissions to delete comment {form.CommentId}. Admin rules: {adminRules}. Author ID match: {dbComment.AuthorId == form.AuthorId}");
+                _logger.LogDebug($"Author ID from form: {form.AuthorId}");
                 _logger.LogDebug($"Author ID from comment in DB: {dbComment.AuthorId}");
                 throw new BadHttpRequestException($"You have no permissions to delete this comment");
             }
