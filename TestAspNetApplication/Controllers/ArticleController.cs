@@ -50,9 +50,22 @@ namespace TestAspNetApplication.Controllers
         {
             return Json(await _articleService.GetAllArticles());
         }
+        [HttpGet]
+        [Route("/articles/{articleId:guid}")]
+        public async Task<IActionResult> GetArticleById(Guid articleId)
+        {
+            try
+            {
+                return Json(await _articleService.GetArticleById(articleId));
+            }
+            catch (BadHttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
         [Authorize]
         [HttpPost]
-        [Route("/articles/{articleId}/edit")]
+        [Route("/articles/{articleId:guid}/edit")]
         public async Task<IActionResult> EditArticle(EditArticleRequest form)
         {
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
@@ -78,7 +91,7 @@ namespace TestAspNetApplication.Controllers
         }
         [Authorize]
         [HttpPost]
-        [Route("/articles/{articleId}/delete")]
+        [Route("/articles/{articleId:guid}/delete")]
         public async Task<IActionResult> DeleteArticle(DeleteArticleRequest form)
         {
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);

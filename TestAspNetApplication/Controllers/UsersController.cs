@@ -25,7 +25,7 @@ namespace TestAspNetApplication.Controllers
         {
             try
             {
-                var user = await _profileService.GetProfileData(id);
+                var user = await _profileService.GetUserWithRoleByIdAsync(id);
                 return Json(user);
             }
             catch (BadHttpRequestException e)
@@ -34,14 +34,14 @@ namespace TestAspNetApplication.Controllers
                 return BadRequest(e.Message);
             }
         }
-        [Route("/users/{id:guid}/edit")]
+        [Route("/users/{UserId}/edit")]
         [HttpPost]
         public async Task<IActionResult> EditCurrentUser(EditUserRequest form)
         {
-            _logger.LogDebug($"Triyng to change profile: {form.Id}");
-
+            _logger.LogDebug($"Triyng to change profile: {form.UserId}");
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
-            if (cookieId != form.Id) {
+            if (cookieId != form.UserId)
+            {
                 _logger.LogDebug($"Cookie ID and form ID doesn't match");
                 return BadRequest("Something wrong with ID");
             }

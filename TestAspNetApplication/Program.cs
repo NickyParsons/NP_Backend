@@ -37,7 +37,11 @@ namespace TestAspNetApplication
             services.AddSession();
             services.AddJwtAuthentication(builder.Configuration);
             services.AddAuthorization();
-            services.AddDistributedMemoryCache();
+            //services.AddDistributedMemoryCache();
+            builder.Services.AddStackExchangeRedisCache(options => {
+                options.Configuration = "localhost";
+                options.InstanceName = "local";
+            });
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1"}));

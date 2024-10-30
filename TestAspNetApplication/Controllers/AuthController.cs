@@ -128,8 +128,8 @@ namespace TestAspNetApplication.Controllers
             {
                 await _authService.ChangeEmail(form);
                 _logger.LogDebug("Email successfully changed");
-                try { Response.Cookies.Delete("nasty-boy"); }
-                catch (Exception) { _logger.LogDebug("Cookie doesn't found"); }
+                try { Response.Cookies.Delete("nasty-boy");} catch (Exception) { }
+                try { Response.Cookies.Delete("passion-flowers"); } catch (Exception) { }
                 return Ok("Email successfully changed");
             }
             catch (BadHttpRequestException e)

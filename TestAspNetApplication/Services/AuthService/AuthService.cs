@@ -20,6 +20,7 @@ namespace TestAspNetApplication.Services
         private readonly ILogger<AuthService> _logger;
         private readonly TokenGenerator _tokenGenerator;
         private readonly IEmailSender _emailSender;
+        private readonly ProfileService _profileService;
         public AuthService(
             PosgresDbContext dbContext, 
             IPasswordHasher passwordHasher, 
@@ -28,7 +29,8 @@ namespace TestAspNetApplication.Services
             IRoleRepository roleRepository, 
             ILogger<AuthService> logger, 
             TokenGenerator tokenGenerator,
-            IEmailSender emailSender) 
+            IEmailSender emailSender,
+            ProfileService profileService) 
         { 
             _dbContext = dbContext;
             _hasher = passwordHasher;
@@ -38,6 +40,7 @@ namespace TestAspNetApplication.Services
             _logger = logger;
             _tokenGenerator = tokenGenerator;
             _emailSender = emailSender;
+            _profileService = profileService;
         }
         public async Task<LoginUserResponse> Login(LoginUserRequest form)
         {
@@ -52,6 +55,7 @@ namespace TestAspNetApplication.Services
             dbUser.RefreshToken = await GenerateToken(GeneratedTokenType.RefreshToken);
             dbUser.RefreshTokenExpires = DateTime.UtcNow.AddDays(7);
             _dbContext.SaveChanges();
+            _profileService.UpdateProfileInCacheAsync(dbUser.Id);
             return new LoginUserResponse { AccessToken = accessToken, RefreshToken = dbUser.RefreshToken };
         }
         public async Task<LoginUserResponse> RefreshAccessToken(string accessToken, string refreshToken)
@@ -69,9 +73,14 @@ namespace TestAspNetApplication.Services
                 _logger.LogDebug($"User {tokenEmail} not found");
                 throw new BadHttpRequestException($"User {tokenEmail} not found");
             }
-            if (refreshToken != dbUser.RefreshToken || DateTime.UtcNow > dbUser.RefreshTokenExpires)
+            if (refreshToken != dbUser.RefreshToken)
             {
-                _logger.LogDebug($"Invalid refresh token");
+                _logger.LogDebug($"Refresh token from db and cookie doesn't match");
+                throw new BadHttpRequestException($"Invalid refresh token");
+            }
+            if (DateTime.UtcNow > dbUser.RefreshTokenExpires)
+            {
+                _logger.LogDebug($"Refresh token expired");
                 throw new BadHttpRequestException($"Invalid refresh token");
             }
             string newAccessToken = _jwtProvider.GenerateToken(dbUser);
@@ -113,6 +122,7 @@ namespace TestAspNetApplication.Services
             if (dbUser == null) throw new BadHttpRequestException("Token not found");
             dbUser.VerifiedAt = DateTime.UtcNow;
             _dbContext.SaveChanges();
+            _profileService.UpdateProfileInCacheAsync(dbUser.Id);
         }
         public async Task ChangeEmail(ChangeEmailRequest form)
         {
@@ -124,6 +134,7 @@ namespace TestAspNetApplication.Services
             dbUser.VerifiedAt = null;
             dbUser.VerificationToken = await GenerateToken(GeneratedTokenType.VerifyEmail);
             _dbContext.SaveChanges();
+            _profileService.UpdateProfileInCacheAsync(dbUser.Id);
             await _emailSender.SendVerifyEmailTokenAsync(dbUser.VerificationToken, dbUser.Email);
         }
         public async Task ForgotPassword(string email)
