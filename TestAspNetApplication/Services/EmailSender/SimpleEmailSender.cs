@@ -63,20 +63,18 @@ namespace TestAspNetApplication.Services
         }
         public string CreateVerificationEmailBody(string token)
         {
+            string url = $"https://nickyparsons.ru/verify-email?token={HttpUtility.UrlEncode(token)}";
             string body = string.Empty;
-            body += "<p>Hello. To confirm your E-mail at nickyparsons.ru go to url:</p>";
-            body += $"<p>https://nickyparsons.ru/verify-email?token={HttpUtility.UrlEncode(token)}</p>";
-            body += "<p>or use manually this token:</p>";
-            body += $"<p>{token}</p>";
+            body += $"<p>Hello. To confirm your E-mail at nickyparsons.ru go to <a href=\"{url}\">this</a> link</p>";
+            body += $"<p>or use manually this token: {token}</p>";
             return body;
         }
         public string CreateForgotPasswordBody(string token)
         {
+            string url = $"https://nickyparsons.ru/reset-password?token={HttpUtility.UrlEncode(token)}";
             string body = string.Empty;
-            body += "<p>Hello. To reset your password at nickyparsons.ru go to url:</p>";
-            body += $"<p>https://nickyparsons.ru/reset-password?token={HttpUtility.UrlEncode(token)}</p>";
-            body += "<p>or use manually this token:</p>";
-            body += $"<p>{token}</p>";
+            body += $"<p>Hello. To reset your password at nickyparsons.ru go to <a href=\"{url}\">this</a> link</p>";
+            body += $"<p>or use manually this token: {token}</p>";
             return body;
         }
     }
