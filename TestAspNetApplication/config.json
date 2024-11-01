@@ -1,9 +1,10 @@
 {
-  "ApplyMigration": true,
   "urls": "http://0.0.0.0:31666",
   "ConnectionStrings": {
-    //"DefaultConnection": "Host=postgres_db;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992"
-    "DefaultConnection": "Host=localhost;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992"
+    "DockerDatabase": "Host=postgres_db;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992",
+    "DockerCache": "redis:6379",
+    "LocalDatabase": "Host=localhost;Port=5432;Database=nicky_db;Username=postgres;Password=zona1992",
+    "LocalCache": "localhost:6379"
   },
   "Logging": {
     "LogDirectory": "D:\\TEMP\\TestSite",

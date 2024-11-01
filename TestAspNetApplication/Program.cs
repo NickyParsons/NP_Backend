@@ -38,14 +38,25 @@ namespace TestAspNetApplication
             services.AddJwtAuthentication(builder.Configuration);
             services.AddAuthorization();
             //services.AddDistributedMemoryCache();
-            builder.Services.AddStackExchangeRedisCache(options => {
-                options.Configuration = "localhost";
-                options.InstanceName = "local";
+            string cacheConnectionString;
+            string dbConnectionString;
+            if (builder.Environment.IsEnvironment("Docker"))
+            {
+                cacheConnectionString = builder.Configuration.GetConnectionString("DockerCache")!;
+                dbConnectionString = builder.Configuration.GetConnectionString("DockerDatabase")!;
+            }
+            else
+            {
+                cacheConnectionString = builder.Configuration.GetConnectionString("LocalCache")!;
+                dbConnectionString = builder.Configuration.GetConnectionString("LocalDatabase")!;
+            }
+            services.AddStackExchangeRedisCache(options => {
+                options.Configuration = cacheConnectionString;
             });
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen(c =>
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1"}));
-            services.AddDbContext<PosgresDbContext>(opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<PosgresDbContext>(opt => opt.UseNpgsql(dbConnectionString));
             services.AddScoped<IPersonRepository, PersonRepository>();
             services.AddScoped<UserRepository>();
             services.AddScoped<IRoleRepository, RoleRepository>();
@@ -82,7 +93,11 @@ namespace TestAspNetApplication
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
-            if (app.Configuration.GetValue<Boolean>("ApplyMigration"))
+            //if (app.Configuration.GetValue<Boolean>("ApplyMigration"))
+            //{
+            //    app.ApplyMigration();
+            //}
+            if (app.Environment.IsEnvironment("Docker"))
             {
                 app.ApplyMigration();
             }
