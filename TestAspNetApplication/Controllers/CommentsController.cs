@@ -23,9 +23,9 @@ namespace TestAspNetApplication.Controllers
         }
         [HttpGet]
         [Route("/articles/{articleId}/comments")]
-        public async Task<IActionResult> GetCommentsForArticle([FromRoute]Guid articleId)
+        public async Task<IActionResult> GetCommentsForArticle(GetCommentsRequest form)
         {
-            return Json(await _commentsService.GetCommentsAtArticle(articleId));
+            return Json(await _commentsService.GetCommentsAtArticle(form));
         }
         [Authorize]
         [HttpPost]

@@ -20,9 +20,22 @@ namespace TestAspNetApplication.Services
             _logger = logger;
             _dbContext = dbContext;
         }
-        public async Task<IEnumerable<Comment>> GetCommentsAtArticle(Guid articleId)
+        public async Task<IEnumerable<Comment>> GetCommentsAtArticle(GetCommentsRequest form)
         {
-            return await _dbContext.Comments.AsNoTracking().Where(c => c.ArticleId == articleId).ToListAsync();
+            var query = _dbContext.Comments.AsNoTracking();
+            query = query
+                .Where(c => c.ArticleId == form.ArticleId)
+                .Include(x => x.Author)
+                .OrderByDescending(x => x.CreatedAt);
+            if (form.Page != null) 
+            {
+                int pageSize = form.PageSize ?? 5;
+                query = query
+                    .Skip((form.Page.Value - 1) * pageSize)
+                    .Take(pageSize);
+            }
+            var articles = await query.ToListAsync();   
+            return articles;
         }
         public async Task<Comment> AddComment(CreateCommentRequest form)
         {

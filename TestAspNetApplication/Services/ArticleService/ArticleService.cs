@@ -31,7 +31,8 @@ namespace TestAspNetApplication.Services
         }
         public async Task<Article> GetArticleById(Guid articleId)
         {
-            var dbArticle = await _dbContext.Articles.FirstOrDefaultAsync(u=>u.Id == articleId);
+            var dbArticle = await _dbContext.Articles
+                .FirstOrDefaultAsync(u=>u.Id == articleId);
             if (dbArticle == null)
             {
                 _logger.LogDebug($"Article: \'{articleId}\' not found");
@@ -63,7 +64,11 @@ namespace TestAspNetApplication.Services
             else
             {
                 _logger.LogDebug($"Articles not found in cache");
-                articles = await _dbContext.Articles.AsNoTracking().ToListAsync();
+                articles = await _dbContext.Articles
+                    .AsNoTracking()
+                    .Include(u => u.Author)
+                    .OrderByDescending( x => x.CreatedAt )
+                    .ToListAsync();
                 if (articles != null)
                 {
                     UpdateArticlesInCacheAsync();
@@ -74,6 +79,7 @@ namespace TestAspNetApplication.Services
         }
         public async Task<Article> CreateArticle(CreateArticleRequest form, IFormFile? file)
         {
+            _logger.LogDebug($"Creating article in service");
             Article article = new Article();
             article.Id = Guid.NewGuid();
             article.Name = form.Name;
@@ -135,7 +141,11 @@ namespace TestAspNetApplication.Services
         }
         public async Task UpdateArticlesInCacheAsync()
         {
-            List<Article> articles = await _dbContext.Articles.AsNoTracking().ToListAsync();
+            List<Article> articles = await _dbContext.Articles
+                .AsNoTracking()
+                .Include(u => u.Author)
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
             string? articlesString = JsonSerializer.Serialize<List<Article>>(articles, new JsonSerializerOptions
             {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
