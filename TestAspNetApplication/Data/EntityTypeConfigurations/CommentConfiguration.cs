@@ -12,6 +12,7 @@ namespace TestAspNetApplication.Data.EntityTypeConfigurations
             builder.HasKey(x => x.Id);
             builder.HasOne(c => c.Author).WithMany(u => u.Comments).HasForeignKey(c => c.AuthorId);
             builder.HasOne(c => c.Article).WithMany(a => a.Comments).HasForeignKey(c => c.ArticleId);
+            builder.HasMany(x => x.LikedBy).WithMany(x => x.LikedComments);
         }
     }
 }

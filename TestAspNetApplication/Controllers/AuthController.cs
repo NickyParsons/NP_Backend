@@ -138,6 +138,40 @@ namespace TestAspNetApplication.Controllers
                 return BadRequest($"{e.Message}");
             }
         }
+        [Authorize]
+        [Route("/send-confirm-email")]
+        [HttpPost]
+        public async Task<IActionResult> SendConfirmEmail(string email)
+        {
+            _logger.LogDebug($"Triyng to send confirmation email to: {email}");
+            var cookieEmail = HttpContext.User.Identity?.Name;
+            if (cookieEmail == null)
+            {
+                _logger.LogDebug("Cant get old e-mail from cookie");
+                return BadRequest("Something wrong with E-mail");
+            }
+            if (email != cookieEmail)
+            {
+                _logger.LogDebug("Email in request doesn't match user email in cookie");
+                return BadRequest("Something wrong with E-mail");
+            }
+            if (email == null)
+            {
+                _logger.LogDebug("E-mail is null");
+                return BadRequest("E-mail is null");
+            }
+            try
+            {
+                await _authService.SendConfirmEmail(email);
+                _logger.LogDebug("Email successfully sended");
+                return Ok("Email successfully sended");
+            }
+            catch (BadHttpRequestException e)
+            {
+                _logger.LogDebug(e.Message);
+                return BadRequest($"{e.Message}");
+            }
+        }
         [Route("/forgot-password")]
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(string? email)

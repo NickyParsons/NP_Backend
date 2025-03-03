@@ -13,12 +13,15 @@ namespace TestAspNetApplication.Controllers
     {
         private ILogger<ArticleController> _logger { get; set; }
         private ArticleService _articleService;
+        private ProfileService _userService;
         public ArticleController(
             ILogger<ArticleController> logger, 
-            ArticleService articleService)
+            ArticleService articleService,
+            ProfileService userService)
         {
             _logger = logger;
             _articleService = articleService;
+            _userService = userService;
         }
         [Authorize]
         [HttpPost]
@@ -107,6 +110,29 @@ namespace TestAspNetApplication.Controllers
             {
                 var article = Json(await _articleService.DeleteArticle(form, moderRules));
                 _logger.LogInformation($"Article: \'{form.ArticleId}\' deleted");
+                return Json(article);
+            }
+            catch (BadHttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [Authorize]
+        [HttpPost]
+        [Route("/articles/{articleId:guid}/like")]
+        public async Task<IActionResult> LikeArticle(LikeArticleRequest form)
+        {
+            Console.WriteLine("new like");
+            Console.WriteLine($"userID: ${form.UserId}");
+            var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
+            if (form.UserId != cookieId)
+            {
+                _logger.LogDebug("User ID from cookie and user ID from request doesn't match");
+                return BadRequest("Something wrong with AuthorID");
+            }
+            try
+            {
+                var article = await _articleService.LikeArticleByUser(form);
                 return Json(article);
             }
             catch (BadHttpRequestException e)

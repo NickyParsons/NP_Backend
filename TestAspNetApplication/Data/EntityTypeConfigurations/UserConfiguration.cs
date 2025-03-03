@@ -13,6 +13,8 @@ namespace TestAspNetApplication.Data.EntityTypeConfigurations
             //builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.HasOne(u => u.Role).WithMany(r => r.Users).HasForeignKey(u => u.RoleId);
             builder.HasMany(u => u.Articles).WithOne(a => a.Author);
+            builder.HasMany(x => x.LikedArticles).WithMany(x => x.LikedBy);
+            builder.HasMany(x => x.LikedComments).WithMany(x => x.LikedBy);
         }
     }
 }

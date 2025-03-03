@@ -10,5 +10,6 @@
         public User? Author { get; set; }
         public Guid ArticleId { get; set; }
         public Article? Article { get; set; }
+        public List<User> LikedBy { get; set; } = new List<User>();
     }
 }

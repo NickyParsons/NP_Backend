@@ -21,6 +21,8 @@ namespace TestAspNetApplication.Data.Entities
         public string? RefreshToken { get; set; }
         public DateTime? RefreshTokenExpires { get; set; }
         public List<Comment> Comments { get; set; } = new List<Comment>();
+        public List<Article> LikedArticles { get; set; } = new List<Article>();
+        public List<Comment> LikedComments { get; set; } = new List<Comment>();
         public override string ToString()
         {
             return $"[{Id}] {FirstName} {LastName} {Email}";

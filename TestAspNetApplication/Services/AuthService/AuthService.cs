@@ -137,6 +137,16 @@ namespace TestAspNetApplication.Services
             _profileService.UpdateProfileInCacheAsync(dbUser.Id);
             await _emailSender.SendVerifyEmailTokenAsync(dbUser.VerificationToken, dbUser.Email);
         }
+        public async Task SendConfirmEmail(string email)
+        {
+            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
+            if (dbUser == null) throw new BadHttpRequestException("User with this e-mail not found");
+            dbUser.VerifiedAt = null;
+            dbUser.VerificationToken = await GenerateToken(GeneratedTokenType.VerifyEmail);
+            _dbContext.SaveChanges();
+            _profileService.UpdateProfileInCacheAsync(dbUser.Id);
+            await _emailSender.SendVerifyEmailTokenAsync(dbUser.VerificationToken, dbUser.Email);
+        }
         public async Task ForgotPassword(string email)
         {
             User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);

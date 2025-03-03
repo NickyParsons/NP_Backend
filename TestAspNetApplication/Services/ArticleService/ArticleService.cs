@@ -50,8 +50,8 @@ namespace TestAspNetApplication.Services
             try
             {
                 string? articleString = await _cache.GetStringAsync($"all_articles".ToString());
-                if (articleString != null)
-                    articles = JsonSerializer.Deserialize<List<Article>>(articleString);
+                //if (articleString != null)
+                //    articles = JsonSerializer.Deserialize<List<Article>>(articleString);
             }
             catch (Exception)
             {
@@ -162,6 +162,26 @@ namespace TestAspNetApplication.Services
                 _logger.LogWarning("Redis error");
             }
             _logger.LogDebug($"All articles cache updated!");
+        }
+        public async Task<Article> LikeArticleByUser(LikeArticleRequest form)
+        {
+            Article? dbArticle = await _dbContext.Articles.FirstOrDefaultAsync(c => c.Id == form.ArticleId);
+            if (dbArticle == null)
+            {
+                _logger.LogDebug("Article with this id not found");
+                throw new BadHttpRequestException($"Article with id {form.ArticleId} not found");
+            }
+            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == form.UserId);
+            if (dbUser == null)
+            {
+                _logger.LogDebug("User with this id not found");
+                throw new BadHttpRequestException($"User with id {form.UserId} not found");
+            }
+            dbArticle.LikedBy.Add(dbUser);
+            dbUser.LikedArticles.Add(dbArticle);
+            _dbContext.SaveChanges();
+            UpdateArticlesInCacheAsync();
+            return dbArticle;
         }
     }
 }
