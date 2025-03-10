@@ -26,6 +26,7 @@ namespace TestAspNetApplication.Services
             query = query
                 .Where(c => c.ArticleId == form.ArticleId)
                 .Include(x => x.Author)
+                .Include(x => x.LikedBy)
                 .OrderByDescending(x => x.CreatedAt);
             if (form.Page != null) 
             {
@@ -86,6 +87,37 @@ namespace TestAspNetApplication.Services
                 throw new BadHttpRequestException($"You have no permissions to delete this comment");
             }
             _dbContext.Comments.Remove(dbComment);
+            _dbContext.SaveChanges();
+            return dbComment;
+        }
+        public async Task<Comment> LikeCommentByUser(LikeCommentRequest form)
+        {
+            Comment? dbComment = await _dbContext.Comments
+                .Include(x => x.LikedBy)
+                .FirstOrDefaultAsync(x => x.Id == form.CommentId);
+            if (dbComment == null)
+            {
+                _logger.LogDebug("Comment with this id not found");
+                throw new BadHttpRequestException($"Comment with id {form.CommentId} not found");
+            }
+            User? dbUser = await _dbContext.Users
+                .Include(x => x.LikedComments)
+                .FirstOrDefaultAsync(x => x.Id == form.UserId);
+            if (dbUser == null)
+            {
+                _logger.LogDebug("User with this id not found");
+                throw new BadHttpRequestException($"User with id {form.UserId} not found");
+            }
+            if (dbComment.LikedBy.Contains(dbUser))
+            {
+                dbComment.LikedBy.Remove(dbUser);
+                dbUser.LikedComments.Remove(dbComment);
+            }
+            else
+            {
+                dbComment.LikedBy.Add(dbUser);
+                dbUser.LikedComments.Add(dbComment);
+            }
             _dbContext.SaveChanges();
             return dbComment;
         }

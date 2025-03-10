@@ -122,8 +122,6 @@ namespace TestAspNetApplication.Controllers
         [Route("/articles/{articleId:guid}/like")]
         public async Task<IActionResult> LikeArticle(LikeArticleRequest form)
         {
-            Console.WriteLine("new like");
-            Console.WriteLine($"userID: ${form.UserId}");
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
             if (form.UserId != cookieId)
             {

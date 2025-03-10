@@ -67,6 +67,7 @@ namespace TestAspNetApplication.Services
                 articles = await _dbContext.Articles
                     .AsNoTracking()
                     .Include(u => u.Author)
+                    .Include(x => x.LikedBy)
                     .OrderByDescending( x => x.CreatedAt )
                     .ToListAsync();
                 if (articles != null)
@@ -165,20 +166,32 @@ namespace TestAspNetApplication.Services
         }
         public async Task<Article> LikeArticleByUser(LikeArticleRequest form)
         {
-            Article? dbArticle = await _dbContext.Articles.FirstOrDefaultAsync(c => c.Id == form.ArticleId);
+            Article? dbArticle = await _dbContext.Articles
+                .Include(x => x.LikedBy)
+                .FirstOrDefaultAsync(c => c.Id == form.ArticleId);
             if (dbArticle == null)
             {
                 _logger.LogDebug("Article with this id not found");
                 throw new BadHttpRequestException($"Article with id {form.ArticleId} not found");
             }
-            User? dbUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == form.UserId);
+            User? dbUser = await _dbContext.Users
+                .Include(x => x.LikedArticles)
+                .FirstOrDefaultAsync(x => x.Id == form.UserId);
             if (dbUser == null)
             {
                 _logger.LogDebug("User with this id not found");
                 throw new BadHttpRequestException($"User with id {form.UserId} not found");
             }
-            dbArticle.LikedBy.Add(dbUser);
-            dbUser.LikedArticles.Add(dbArticle);
+            if (dbArticle.LikedBy.Contains(dbUser))
+            {
+                dbArticle.LikedBy.Remove(dbUser);
+                dbUser.LikedArticles.Remove(dbArticle);
+            }
+            else 
+            {
+                dbArticle.LikedBy.Add(dbUser);
+                dbUser.LikedArticles.Add(dbArticle);
+            }
             _dbContext.SaveChanges();
             UpdateArticlesInCacheAsync();
             return dbArticle;

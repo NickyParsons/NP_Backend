@@ -22,14 +22,14 @@ namespace TestAspNetApplication.Controllers
             _commentsService = commentsService;
         }
         [HttpGet]
-        [Route("/articles/{articleId}/comments")]
+        [Route("/articles/{articleId:guid}/comments")]
         public async Task<IActionResult> GetCommentsForArticle(GetCommentsRequest form)
         {
             return Json(await _commentsService.GetCommentsAtArticle(form));
         }
         [Authorize]
         [HttpPost]
-        [Route("/articles/{articleId}/comments")]
+        [Route("/articles/{articleId:guid}/comments")]
         public async Task<IActionResult> PostCommentForArticle(CreateCommentRequest form)
         {
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
@@ -50,7 +50,7 @@ namespace TestAspNetApplication.Controllers
         }
         [Authorize]
         [HttpPost]
-        [Route("/comments/{commentId}/edit")]
+        [Route("/comments/{commentId:guid}/edit")]
         public async Task<IActionResult> EditComment(EditCommentRequest form)
         {
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
@@ -73,7 +73,7 @@ namespace TestAspNetApplication.Controllers
         }
         [Authorize]
         [HttpPost]
-        [Route("/comments/{commentId}/delete")]
+        [Route("/comments/{commentId:guid}/delete")]
         public async Task<IActionResult> DeleteComment(DeleteCommentRequest form)
         {
             var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
@@ -88,6 +88,27 @@ namespace TestAspNetApplication.Controllers
             try
             {
                 return Json(await _commentsService.DeleteComment(form, adminRules));
+            }
+            catch (BadHttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+        [Authorize]
+        [HttpPost]
+        [Route("/comments/{commentId:guid}/like")]
+        public async Task<IActionResult> LikeComment(LikeCommentRequest form)
+        {
+            var cookieId = Guid.Parse(HttpContext.User.Claims.First(c => c.Type == "id").Value);
+            if (form.UserId != cookieId)
+            {
+                _logger.LogDebug("User ID from cookie and user ID from request doesn't match");
+                return BadRequest("Something wrong with AuthorID");
+            }
+            try
+            {
+                var comment = await _commentsService.LikeCommentByUser(form);
+                return Json(comment);
             }
             catch (BadHttpRequestException e)
             {
